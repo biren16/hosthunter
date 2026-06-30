@@ -12,26 +12,30 @@ def ssl_lookup(domain):
 
             with context.wrap_socket(sock, server_hostname=domain) as ssl_sock:
 
-              certificate = ssl_sock.getpeercert()
+                certificate = ssl_sock.getpeercert()
 
-              result["subject"] = normalize_certificate_info(certificate["subject"])
-              result["issuer"] = normalize_certificate_info(certificate["issuer"])
-              result["valid_from"] = certificate["notBefore"]
-              # result["valid_until"] = certificate["notAfter"]
+                certificate = ssl_sock.getpeercert()
+
+                if certificate is None:
+                    result["error"] = "No certificate received"
+                    return result
+
+                result["subject"] = normalize_certificate_info(certificate["subject"])
+                result["issuer"] = normalize_certificate_info(certificate["issuer"])
+                result["valid_from"] = certificate["notBefore"]
+                # result["valid_until"] = certificate["notAfter"]
 
               # calculate days rem
-              valid_until = certificate["notAfter"]
-              result["valid_until"] = valid_until
+                valid_until = str(certificate["notAfter"])
+                result["valid_until"] = valid_until
               
-              valid_until_date = datetime.strptime(
-                  valid_until,
-                  "%b %d %H:%M:%S %Y %Z"
-              )
+                valid_until_date = datetime.strptime(valid_until, "%b %d %H:%M:%S %Y %Z")
+                
 
-              days_remaining = (valid_until_date - datetime.utcnow()).days
+                days_remaining = (valid_until_date - datetime.utcnow()).days
 
-              result["days_until_expiry"] = days_remaining
-              result["is_expired"] = days_remaining < 0
+                result["days_until_expiry"] = days_remaining
+                result["is_expired"] = days_remaining < 0
 
     except Exception as e:
         print(type(e))
