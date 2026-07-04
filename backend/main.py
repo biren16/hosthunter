@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from modules.dns_module import dns_lookup
 from modules.whois_module import whois_lookup
@@ -10,6 +10,17 @@ app = FastAPI()
 
 class ScanRequest(BaseModel):
     domain:str
+
+    @field_validator("domain")
+    @classmethod
+    def validate_domain(cls, v):
+        v = v.strip().lower()
+        if not v:
+            raise ValueError("Domain cannot be empty")
+        if "://" in v:
+            raise ValueError("Enter domain only, not full URL")
+        return v
+
 
 @app.get("/")
 def home():
