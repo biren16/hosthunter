@@ -1,6 +1,5 @@
 import dns.resolver
 
-
 def dns_lookup(domain):
     record_types = ["A", "AAAA", "MX", "NS", "TXT"]
 
@@ -41,6 +40,10 @@ def dns_lookup(domain):
         except Exception:
             result["error"] = "Unable to perform DNS lookup"
             break
+
+    # There aint any records for all 5 types
+    if result["domainexists"] is None:
+        result["domainexists"] = False
 
     result["dns"] = dns_records  # append the ips dict to result dict
 

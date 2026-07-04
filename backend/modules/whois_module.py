@@ -1,6 +1,5 @@
 import whois
 
-
 def whois_lookup(domain):
 
     result = {}
@@ -8,7 +7,8 @@ def whois_lookup(domain):
     try:
 
         whois_data = whois.whois(domain)
-        result["domain_name"] = whois_data["domain_name"]
+        domain_name = whois_data["domain_name"]
+        result["domain_name"] = domain_name[0] if isinstance(domain_name, list) else domain_name
         result["registrar"] = whois_data["registrar"]
         result["organization"] = whois_data["org"]
         result["country"] = whois_data["country"]
@@ -21,6 +21,8 @@ def whois_lookup(domain):
         result["status"] = normalize_status(whois_data["status"])
         result["dnssec"] = whois_data["dnssec"]
 
+    except whois.parser.PywhoisError:
+        result["error"] = "WHOIS lookup failed"
     except Exception as e:
         print(type(e))
         print(e)
@@ -55,7 +57,3 @@ def normalize_status(status_list):
             result.append(clean_status)
     
     return result
-
-        
-        
-        
