@@ -68,7 +68,7 @@ HostHunter/
 
 ```bash
 # Clone the repo
-git clone https://github.com/birenkumar/hosthunter
+git clone https://github.com/biren16/hosthunter
 cd hosthunter/backend
 
 # Create and activate virtual environment
