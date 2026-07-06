@@ -1,4 +1,5 @@
 import whois
+from datetime import datetime, date
 
 def whois_lookup(domain):
 
@@ -26,7 +27,7 @@ def whois_lookup(domain):
     except Exception as e:
         print(type(e))
         print(e)
-        result["error"] = str(e)
+        result["error"] = "Unable to perform WHOIS lookup"
 
     return result
 
@@ -34,12 +35,22 @@ def whois_lookup(domain):
 def normalize_date(date_obj):
 
     if isinstance(date_obj, list):
+        if len(date_obj) == 0:
+            return None
+
         date_obj = date_obj[0]
 
     if date_obj is None:
         return None
 
-    return (date_obj.date().isoformat())  # jus one val not a list maybe or maybe if list then list[0]
+    if isinstance(date_obj, datetime):
+        return date_obj.date().isoformat()
+
+    if isinstance(date_obj, date):
+        return date_obj.isoformat()
+
+    return str(date_obj)  # jus one val not a list maybe or maybe if list then list[0]
+
 
 def normalize_status(status_list):
     result=[]
