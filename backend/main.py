@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from modules.dns_module import dns_lookup
 from modules.whois_module import whois_lookup
 from modules.ssl_module import ssl_lookup
+from modules.ip_module import ip_lookup
 import ipaddress
 
 app = FastAPI()
@@ -98,6 +99,7 @@ def scan(request : ScanRequest):
     dns_result = dns_lookup(domain)
     whois_result = whois_lookup(domain)
     ssl_result = ssl_lookup(domain)
+    ip_result = ip_lookup(domain)
 
     errors = {
         # usin get coz we get only if error exists 
@@ -119,6 +121,7 @@ def scan(request : ScanRequest):
         "dns" : dns_result.get("dns"),
         "whois" : whois_result,
         "ssl" : ssl_result,
+        "ip" : ip_result
     }
 
     #if theres smth in errors show em
