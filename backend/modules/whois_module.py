@@ -57,14 +57,14 @@ def normalize_status(status_list):
 
     if status_list is None:
         return result
-    
+
     if isinstance (status_list,str):
         status_list=[status_list]
 
     for status in status_list:
-        clean_status=status.split()[0]
+        clean_status = status.split("http")[0].strip()
 
-        if clean_status not in result:
+        if clean_status and clean_status not in result:
             result.append(clean_status)
-    
+
     return result
