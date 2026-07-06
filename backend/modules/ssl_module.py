@@ -22,6 +22,11 @@ def ssl_lookup(domain):
                     return result
 
                 binary_certificate = ssl_sock.getpeercert(binary_form=True)
+
+                if binary_certificate is None:
+                    result["error"] = "No binary certificate received"
+                    return result
+                
                 x509_certificate = x509.load_der_x509_certificate(binary_certificate)
 
                 public_key = x509_certificate.public_key()
@@ -75,13 +80,13 @@ def ssl_lookup(domain):
                 result["fingerprint_sha256"] = fingerprint_sha256
                 result["fingerprint_sha1"] = fingerprint_sha1
 
-    except ssl.SSLCertVerificationError as e:
+    except ssl.SSLCertVerificationError:
         result["error"] = "Certificate verification failed"
-    except socket.timeout as e:
+    except socket.timeout:
         result["error"] = "Connection timed out"
-    except ConnectionAbortedError as e:
+    except ConnectionAbortedError:
         result["error"] = "Connection aborted"
-    except ConnectionRefusedError as e:
+    except ConnectionRefusedError:
         result["error"] = "Connection refused"
     except Exception as e:
         result["error"] = str(e)
