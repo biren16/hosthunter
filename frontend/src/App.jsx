@@ -122,7 +122,7 @@ export default function App() {
     setActiveTab('dns')
 
     try {
-      const res  = await fetch('/scan', {
+      const res  = await fetch(`${import.meta.env.VITE_API_URL}/scan`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ domain: target }),
