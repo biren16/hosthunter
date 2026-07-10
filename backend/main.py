@@ -19,7 +19,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3737",
         "http://localhost:5173",
-        "https://hosthunter-recon.vercel.app/",  # still pending until frontend deploys
+        "https://hosthunter-recon.vercel.app",  # still pending until frontend deploys
     ],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
