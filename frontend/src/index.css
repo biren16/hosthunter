@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    min-height: 100dvh;
+    background-color: #0A0A0F;
+    color: #E2E6EA;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  * {
+    box-sizing: border-box;
+  }
+}
+
+/* ─── Ambient atmosphere ────────────────────────────────────────────────────
+   Barely-there gradient atmosphere. These are not visible design elements —
+   they read as atmosphere only. Opacity is deliberately very low.
+   Never the first thing a viewer notices.
+────────────────────────────────────────────────────────────────────────── */
+.app-bg::before,
+.app-bg::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.app-bg::before {
+  width: 800px;
+  height: 800px;
+  top: -280px;
+  left: -180px;
+  background: radial-gradient(ellipse, rgba(108, 92, 231, 0.045) 0%, transparent 70%);
+}
+.app-bg::after {
+  width: 600px;
+  height: 600px;
+  bottom: -200px;
+  right: -100px;
+  background: radial-gradient(ellipse, rgba(62, 214, 196, 0.03) 0%, transparent 70%);
+}
+
+/* ─── Navbar glass ──────────────────────────────────────────────────────── */
+.nav-glass {
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ─── Search input ──────────────────────────────────────────────────────── */
+.search-wrap {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.search-wrap:focus-within {
+  border-color: rgba(62, 214, 196, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(62, 214, 196, 0.05), 0 4px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Wordmark ──────────────────────────────────────────────────────────── */
+.wordmark-hero {
+  font-size: clamp(2.75rem, 7vw, 5.5rem);
+  letter-spacing: 0.12em;
+  line-height: 0.9;
+}
+.wordmark-nav {
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+}
+
+/* ─── Loading / pending dots ────────────────────────────────────────────── */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%       { opacity: 0.25; transform: scale(0.6); }
+}
+.dot-pulse {
+  animation: dot-pulse 1.3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot-pulse { animation: none; opacity: 0.4; }
+}
+
+/* ─── Scan sweep line ───────────────────────────────────────────────────── */
+@keyframes scan-sweep {
+  0%   { transform: translateY(-2px); opacity: 0; }
+  4%   { opacity: 1; }
+  96%  { opacity: 1; }
+  100% { transform: translateY(100dvh); opacity: 0; }
+}
+.scan-sweep {
+  animation: scan-sweep 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scan-sweep { animation: none; display: none; }
+}
+
+/* ─── Entry animation ───────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.18s ease-out both;
+}
+
+/* ─── Noise grain (very subtle) ─────────────────────────────────────────── */
+.noise::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.022;
+  mix-blend-mode: overlay;
+}
