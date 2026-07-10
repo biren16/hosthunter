@@ -8,8 +8,22 @@ from modules.ssl_module import ssl_lookup
 from modules.ip_module import ip_lookup
 import ipaddress
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
 app = FastAPI()
 # uvicorn main:app --reload
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3737",
+        "http://localhost:5173",
+        "https://your-frontend-name.vercel.app",  # still pending until frontend deploys
+    ],
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 class ScanRequest(BaseModel):
     domain:str
@@ -102,10 +116,11 @@ def scan(request : ScanRequest):
     ip_result = ip_lookup(domain)
 
     errors = {
-        # usin get coz we get only if error exists 
+        # usin get coz we get only if error exists
         "dns": dns_result.get("error"),
         "whois": whois_result.get("error"),
         "ssl": ssl_result.get("error"),
+        "ip": ip_result.get("error")
     }
 
     clean_errors = {}
@@ -124,7 +139,7 @@ def scan(request : ScanRequest):
         "ip" : ip_result
     }
 
-    #if theres smth in errors show em
+    # if theres smth in errors show em
     if errors:
         result["errors"] = errors
 
