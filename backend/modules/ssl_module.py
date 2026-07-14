@@ -11,9 +11,10 @@ def ssl_lookup(domain):
     result = {} 
 
     try:
-        with socket.create_connection((domain, 443)) as sock:
+        with socket.create_connection((domain, 443), timeout=5) as sock:
 
             with context.wrap_socket(sock, server_hostname=domain) as ssl_sock:
+                ssl_sock.settimeout(5)
 
                 certificate = ssl_sock.getpeercert()
 
