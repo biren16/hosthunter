@@ -1,6 +1,10 @@
 import dns.resolver
 
 def dns_lookup(domain):
+    resolver=dns.resolver.Resolver()
+    resolver.timeout = 5
+    resolver.lifetime = 5
+
     record_types = ["A", "AAAA", "MX", "NS", "TXT"]
 
     # dictionary
@@ -16,7 +20,7 @@ def dns_lookup(domain):
 
     for record_type in record_types:
         try:
-            records = dns.resolver.resolve(domain, record_type)
+            records = resolver.resolve(domain, record_type)
             result["domainexists"] = True  # even if one recordtype is found its true
             for record in records:
                 dns_records[record_type].append(str(record)) # Store each DNS record as a string
