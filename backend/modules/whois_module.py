@@ -8,7 +8,9 @@ def whois_lookup(domain):
     try:
 
         whois_data = whois.whois(domain)
+
         domain_name = whois_data["domain_name"]
+        
         result["domain_name"] = domain_name[0] if isinstance(domain_name, list) else domain_name
         result["registrar"] = whois_data["registrar"]
         result["organization"] = whois_data["org"]
@@ -24,9 +26,7 @@ def whois_lookup(domain):
 
     except whois.parser.PywhoisError:
         result["error"] = "WHOIS lookup failed"
-    except Exception as e:
-        print(type(e))
-        print(e)
+    except Exception:
         result["error"] = "Unable to perform WHOIS lookup"
 
     return result
