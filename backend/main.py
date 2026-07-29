@@ -17,7 +17,6 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3737",
         "http://localhost:5173",
         "https://hosthunter-recon.vercel.app",  # still pending until frontend deploys
         "https://hosthunter-biren16s-projects.vercel.app",
