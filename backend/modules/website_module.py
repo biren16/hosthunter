@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+from utils.network import ensure_public_destination
 
 REQUEST_TIMEOUT = 5
 REQUEST_HEADERS = {
@@ -15,9 +16,10 @@ def website_lookup(domain):
     result = {}
 
     try:
+        _ = ensure_public_destination(domain)
         website = fetch_website(domain)
 
-    except requests.RequestException as e:
+    except (requests.RequestException, ConnectionError) as e:
         result["error"] = str(e)
         return result
 
