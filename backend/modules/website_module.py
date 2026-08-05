@@ -15,16 +15,19 @@ def website_lookup(domain):
     result = {}
 
     try:
-        response = fetch_website(domain)
+        website = fetch_website(domain)
 
     except requests.RequestException as e:
         result["error"] = str(e)
         return result
 
-    result["url"] = response.url
+    response = website["response"]
+
+    result["requested_url"] = website["requested_url"]
+    result["final_url"] = response.url
     result["status_code"] = response.status_code
     result["scheme"] = urlparse(response.url).scheme
-    
+
     result["metadata"] = extract_metadata(response)
     result["security_headers"] = extract_security_headers(response.headers)
 
@@ -42,8 +45,10 @@ def fetch_website(domain):
                 allow_redirects=True,
             )
 
-            response.raise_for_status()
-            return response
+            return {
+                "response" : response,
+                "requested_url" : f"{scheme}://{domain}",
+            }
 
         # Only these errors indicate HTTPS could not be established.
         # In that case, try HTTP before giving up.
@@ -82,6 +87,19 @@ def extract_metadata(response):
         else None
     )
 
+    # Fallback for older HTML
+    if charset is None:
+        http_equiv = soup.find(
+            "meta",
+            attrs={"http-equiv": "Content-Type"},
+        )
+
+        if http_equiv:
+            content = http_equiv.get("content", "")
+
+            if "charset=" in content:
+                charset = content.split("charset=")[-1].strip()
+
     description = get_meta_content(soup, "description")
     robots = get_meta_content(soup,"robots")
     generator = get_meta_content(soup,"generator")
@@ -103,20 +121,88 @@ def extract_metadata(response):
 
 def extract_security_headers(response_headers):
 
-    hsts = get_header(response_headers, "Strict-Transport-Security")
-    csp = get_header(response_headers, "Content-Security-Policy")
-    x_frame_options= get_header(response_headers, "X-Frame-Options")
-    x_content_type_options = get_header(response_headers, "X-Content-Type-Options")
-    referrer_policy = get_header(response_headers, "Referrer-Policy")
-    permissions_policy = get_header(response_headers, "Permissions-Policy")
-    
+    hsts = get_header(
+        response_headers,
+        "Strict-Transport-Security",
+    )
+
+    csp = get_header(
+        response_headers,
+        "Content-Security-Policy",
+    )
+
+    x_frame_options = get_header(
+        response_headers,
+        "X-Frame-Options",
+    )
+
+    x_content_type_options = get_header(
+        response_headers,
+        "X-Content-Type-Options",
+    )
+
+    referrer_policy = get_header(
+        response_headers,
+        "Referrer-Policy",
+    )
+
+    permissions_policy = get_header(
+        response_headers,
+        "Permissions-Policy",
+    )
+
+    cross_origin_opener_policy = get_header(
+        response_headers,
+        "Cross-Origin-Opener-Policy",
+    )
+
+    cross_origin_embedder_policy = get_header(
+        response_headers,
+        "Cross-Origin-Embedder-Policy",
+    )
+
+    cross_origin_resource_policy = get_header(
+        response_headers,
+        "Cross-Origin-Resource-Policy",
+    )
+
     return {
-        "strict_transport_security" : analyze_header(hsts),
-        "content_security_policy" : analyze_header(csp),
-        "x_frame_options" : analyze_header(x_frame_options),
-        "x_content_type_options" : analyze_header(x_content_type_options),
-        "referrer_policy" :analyze_header(referrer_policy),
-        "permissions_policy" :analyze_header (permissions_policy),
+        "strict_transport_security": analyze_header(
+            hsts,
+            "Forces browsers to always use HTTPS for future requests.",
+        ),
+        "content_security_policy": analyze_header(
+            csp,
+            "Restricts which resources the browser is allowed to load to reduce XSS and content injection attacks.",
+        ),
+        "x_frame_options": analyze_header(
+            x_frame_options,
+            "Protects against clickjacking by controlling whether the page can be embedded in frames.",
+        ),
+        "x_content_type_options": analyze_header(
+            x_content_type_options,
+            "Prevents browsers from MIME type sniffing.",
+        ),
+        "referrer_policy": analyze_header(
+            referrer_policy,
+            "Controls how much referrer information is shared with other websites.",
+        ),
+        "permissions_policy": analyze_header(
+            permissions_policy,
+            "Restricts access to browser features such as camera, microphone, and geolocation.",
+        ),
+        "cross_origin_opener_policy": analyze_header(
+            cross_origin_opener_policy,
+            "Isolates the browsing context to improve security against cross-origin attacks.",
+        ),
+        "cross_origin_embedder_policy": analyze_header(
+            cross_origin_embedder_policy,
+            "Controls whether cross-origin resources can be embedded into the page.",
+        ),
+        "cross_origin_resource_policy": analyze_header(
+            cross_origin_resource_policy,
+            "Controls which external origins are allowed to access the site's resources.",
+        ),
     }
 
 def get_meta_content(soup,meta_name):
@@ -150,8 +236,9 @@ def get_header(response_headers,header_name):
         else None
     )
     
-def analyze_header(header):
+def analyze_header(header, meaning):
     return {
         "enabled" : header is not None,
         "value" : header,
+        "description" : meaning,
     }
