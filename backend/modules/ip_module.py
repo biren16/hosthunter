@@ -1,8 +1,12 @@
 import socket
 import ipaddress
 
-import os 
-from dotenv import load_dotenv
+import os
+try:
+    from dotenv import load_dotenv
+except Exception:  # fallback if python-dotenv is not installed
+    def load_dotenv(*args, **kwargs):
+        return None
 import requests
 
 load_dotenv()
