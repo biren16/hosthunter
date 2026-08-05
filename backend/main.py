@@ -6,6 +6,7 @@ from modules.dns_module import dns_lookup
 from modules.whois_module import whois_lookup
 from modules.ssl_module import ssl_lookup
 from modules.ip_module import ip_lookup
+from modules.website_module import website_lookup
 import ipaddress
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -114,13 +115,15 @@ def scan(request : ScanRequest):
     whois_result = whois_lookup(domain)
     ssl_result = ssl_lookup(domain)
     ip_result = ip_lookup(domain)
+    website_result = website_lookup(domain)
 
     errors = {
         # usin get coz we get only if error exists
         "dns": dns_result.get("error"),
         "whois": whois_result.get("error"),
         "ssl": ssl_result.get("error"),
-        "ip": ip_result.get("error")
+        "ip": ip_result.get("error"),
+        "website" : website_result.get("error")
     }
 
     clean_errors = {}
@@ -136,7 +139,8 @@ def scan(request : ScanRequest):
         "dns" : dns_result.get("dns"),
         "whois" : whois_result,
         "ssl" : ssl_result,
-        "ip" : ip_result
+        "ip" : ip_result,
+        "website" : website_result,
     }
 
     # if theres smth in errors show em
@@ -144,3 +148,5 @@ def scan(request : ScanRequest):
         result["errors"] = errors
 
     return result
+
+
