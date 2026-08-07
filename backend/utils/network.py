@@ -16,6 +16,9 @@ def resolve_addresses(domain):
 def is_public_ip(ip):
     address = ipaddress.ip_address(ip)
 
+    if address.version == 6 and address.ipv4_mapped:
+        address = address.ipv4_mapped
+
     return (
         not address.is_private
         and not address.is_loopback
