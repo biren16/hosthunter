@@ -1,13 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from utils.network import ensure_public_destination
-
-REQUEST_TIMEOUT = 5
-REQUEST_HEADERS = {
-    "User-Agent": "HostHunter/1.0 (+https://github.com/biren16/hosthunter)"
-}
-
+from utils.http_client import fetch_http
 
 def website_lookup(domain):
     """
@@ -16,8 +10,7 @@ def website_lookup(domain):
     result = {}
 
     try:
-        _ = ensure_public_destination(domain)
-        website = fetch_website(domain)
+        website = fetch_http(domain)
 
     except (requests.RequestException, ConnectionError) as e:
         result["error"] = str(e)
@@ -34,36 +27,7 @@ def website_lookup(domain):
     result["security_headers"] = extract_security_headers(response.headers)
 
     return result
-
-def fetch_website(domain):
-
-    for scheme in ("https","http"):
-
-        try:
-            response = requests.get(
-                f"{scheme}://{domain}",
-                headers=REQUEST_HEADERS,
-                timeout=REQUEST_TIMEOUT,
-                allow_redirects=True,
-            )
-
-            return {
-                "response" : response,
-                "requested_url" : f"{scheme}://{domain}",
-            }
-
-        # Only these errors indicate HTTPS could not be established.
-        # In that case, try HTTP before giving up.
-        except (
-            requests.SSLError,
-            requests.ConnectionError,
-            requests.Timeout,
-        ):
-            continue
-
-    raise requests.ConnectionError(
-        f"Unable to connect to '{domain}' using HTTP or HTTPS."
-    )
+ 
 
 def extract_metadata(response):
     soup = BeautifulSoup(response.text,"html.parser")
