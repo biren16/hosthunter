@@ -7,6 +7,12 @@ from modules.whois_module import whois_lookup
 from modules.ssl_module import ssl_lookup
 from modules.ip_module import ip_lookup
 from modules.website_module import website_lookup
+
+from modules.technology_module import technology_lookup
+from modules.cdn_module import cdn_lookup
+from modules.email_security_module import email_security_lookup
+
+
 import ipaddress
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,8 +24,12 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
-        "https://hosthunter-recon.vercel.app",  # still pending until frontend deploys
+        # "http://localhost:5173",
+        # "http://localhost:3737",
+        # "http://127.0.0.1:5173",
+        "http://127.0.0.1:3737",
+        # "http://127.0.0.1:8000",
+        "https://hosthunter-recon.vercel.app",
         "https://hosthunter-biren16s-projects.vercel.app",
     ],
     allow_methods=["GET", "POST", "OPTIONS"],
@@ -117,13 +127,22 @@ def scan(request : ScanRequest):
     ip_result = ip_lookup(domain)
     website_result = website_lookup(domain)
 
+    technology_result = technology_lookup(domain)
+    cdn_result = cdn_lookup(domain)
+    email_security_result = email_security_lookup(domain)
+
     errors = {
         # usin get coz we get only if error exists
         "dns": dns_result.get("error"),
         "whois": whois_result.get("error"),
         "ssl": ssl_result.get("error"),
         "ip": ip_result.get("error"),
-        "website" : website_result.get("error")
+        "website" : website_result.get("error"),
+
+        "technology": technology_result.get("error"),
+        "cdn": cdn_result.get("error"),
+        "email_security": email_security_result.get("error"),
+
     }
 
     clean_errors = {}
@@ -141,6 +160,10 @@ def scan(request : ScanRequest):
         "ssl" : ssl_result,
         "ip" : ip_result,
         "website" : website_result,
+
+        "technology": technology_result,
+        "cdn": cdn_result,
+        "email_security": email_security_result,
     }
 
     # if theres smth in errors show em
