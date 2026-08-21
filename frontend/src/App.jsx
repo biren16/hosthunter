@@ -1,9 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import VerdictBanner from './components/VerdictBanner.jsx'
 import DnsSection    from './components/sections/DnsSection.jsx'
 import WhoisSection  from './components/sections/WhoisSection.jsx'
 import SslSection    from './components/sections/SslSection.jsx'
 import IpSection     from './components/sections/IpSection.jsx'
+import WebsiteSection       from './components/sections/WebsiteSection.jsx'
+import CdnSection            from './components/sections/CdnSection.jsx'
+import TechnologySection     from './components/sections/TechnologySection.jsx'
+import EmailSecuritySection  from './components/sections/EmailSecuritySection.jsx'
 import LandingPage   from './components/LandingPage.jsx'
 
 /* ─── Status Dot ─────────────────────────────────────────────────────────── */
@@ -37,7 +41,7 @@ function SearchInput({ value, onChange, onSubmit, disabled, autoFocus, compact =
   return (
     <form onSubmit={onSubmit} className="w-full" role="search">
       <div
-        className={`search-wrap relative flex items-center bg-surface border border-white/[0.08] rounded-xl ${
+        className={`search-wrap relative flex items-center bg-surface border border-invert/[0.08] rounded-xl ${
           compact ? 'px-3.5 py-2' : 'px-5 py-3.5'
         }`}
       >
@@ -99,12 +103,46 @@ function PendingState() {
 }
 
 /* ─── App ────────────────────────────────────────────────────────────────── */
+const getApiBaseUrl = () => {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim()
+
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/$/, '')
+  }
+
+  if (import.meta.env.PROD) {
+    return 'https://hosthunter.onrender.com'
+  }
+
+  return ''
+}
+
 export default function App() {
   const [domain,    setDomain]    = useState('')
   const [phase,     setPhase]     = useState('idle') // idle | scanning | done | error
   const [result,    setResult]    = useState(null)
   const [errorMsg,  setErrorMsg]  = useState(null)
   const [activeTab, setActiveTab] = useState('dns')
+
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('hosthunter-theme')
+      if (saved === 'dark' || saved === 'light') return saved
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return 'dark'
+  })
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    localStorage.setItem('hosthunter-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
 
   const isScanning  = phase === 'scanning'
   const isDone      = phase === 'done' && !!result
@@ -122,7 +160,9 @@ export default function App() {
     setActiveTab('dns')
 
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL}/scan`, {
+      const apiBaseUrl = getApiBaseUrl()
+      const endpoint = apiBaseUrl ? `${apiBaseUrl}/scan` : '/scan'
+      const res  = await fetch(endpoint, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ domain: target }),
@@ -162,6 +202,11 @@ export default function App() {
     if (result.ssl.is_expired || result.ssl.days_until_expiry < 14) sslStatus = 'warning'
   }
 
+  const websiteStatus       = status(!!result?.website,        'website')
+  const cdnStatus           = status(!!result?.cdn,            'cdn')
+  const technologyStatus    = status(!!result?.technology,     'technology')
+  const emailSecurityStatus = status(!!result?.email_security, 'email_security')
+
   const errors = result?.errors ?? {}
 
   /* ── Sidebar subtexts ── */
@@ -194,11 +239,46 @@ export default function App() {
     return `${n} address${n !== 1 ? 'es' : ''}`
   }, [result?.ip])
 
+  const websiteSubtext = useMemo(() => {
+    if (!result?.website || result.website.error) return null
+    const h = result.website.security_headers
+    if (!h) return `${result.website.status_code || '—'}`
+    const enabled = Object.values(h).filter(v => v?.enabled).length
+    const total = Object.keys(h).length
+    return `${enabled}/${total} headers`
+  }, [result?.website])
+
+  const cdnSubtext = useMemo(() => {
+    if (!result?.cdn || result.cdn.error) return null
+    return result.cdn.detected ? result.cdn.provider || 'Detected' : 'Not detected'
+  }, [result?.cdn])
+
+  const technologySubtext = useMemo(() => {
+    if (!result?.technology || result.technology.error) return null
+    const t = result.technology
+    const parts = []
+    if (t.web_server?.name) parts.push(t.web_server.name)
+    if (t.frontend?.frameworks?.length) parts.push(...t.frontend.frameworks)
+    if (parts.length === 0) return 'None identified'
+    return parts.slice(0, 2).join(', ')
+  }, [result?.technology])
+
+  const emailSecuritySubtext = useMemo(() => {
+    if (!result?.email_security || result.email_security.error) return null
+    const es = result.email_security
+    const n = [es.spf?.enabled, es.dmarc?.enabled].filter(Boolean).length
+    return `${n}/2 protocols`
+  }, [result?.email_security])
+
   const tabs = [
-    { id: 'dns',   label: 'DNS Resolution',  status: dnsStatus,   subtext: dnsSubtext },
-    { id: 'whois', label: 'WHOIS Registry',  status: whoisStatus, subtext: whoisSubtext },
-    { id: 'ssl',   label: 'SSL / TLS',       status: sslStatus,   subtext: sslSubtext },
-    { id: 'ip',    label: 'IP Intelligence', status: ipStatus,    subtext: ipSubtext },
+    { id: 'dns',            label: 'DNS Resolution',   status: dnsStatus,            subtext: dnsSubtext },
+    { id: 'whois',          label: 'WHOIS Registry',   status: whoisStatus,          subtext: whoisSubtext },
+    { id: 'ssl',            label: 'SSL / TLS',        status: sslStatus,            subtext: sslSubtext },
+    { id: 'ip',             label: 'IP Intelligence',  status: ipStatus,             subtext: ipSubtext },
+    { id: 'website',        label: 'Website',          status: websiteStatus,        subtext: websiteSubtext },
+    { id: 'cdn',            label: 'CDN Detection',    status: cdnStatus,            subtext: cdnSubtext },
+    { id: 'technology',     label: 'Technology',        status: technologyStatus,     subtext: technologySubtext },
+    { id: 'email_security', label: 'Email Security',   status: emailSecurityStatus,  subtext: emailSecuritySubtext },
   ]
 
   return (
@@ -207,7 +287,7 @@ export default function App() {
 
       {/* ── Persistent navbar ─────────────────────────────────────────────── */}
       <header
-        className="nav-glass fixed top-0 inset-x-0 z-50 flex items-center gap-4 px-6 sm:px-8 h-14 border-b border-white/[0.05]"
+        className="nav-glass fixed top-0 inset-x-0 z-50 flex items-center gap-4 px-6 sm:px-8 h-14 border-b border-invert/[0.05]"
         role="banner"
       >
         {/* Wordmark — always clickable, always resets to idle */}
@@ -231,6 +311,39 @@ export default function App() {
             />
           </div>
         )}
+
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-invert/[0.08] bg-surface hover:bg-invert/[0.04] text-muted hover:text-ink font-mono text-[11px] transition-all duration-150 focus:outline-none"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <span className="hidden sm:inline">Light</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <span className="hidden sm:inline">Dark</span>
+              </>
+            )}
+          </button>
+        </div>
       </header>
 
       {/* ── Hero (idle + error state) ──────────────────────────────────────── */}
@@ -276,10 +389,10 @@ export default function App() {
 
             {/* Capability pills */}
             <div className="flex items-center gap-2 flex-wrap justify-center" aria-hidden="true">
-              {['DNS', 'WHOIS', 'SSL', 'IP Intelligence'].map(tag => (
+              {['DNS', 'WHOIS', 'SSL', 'IP', 'Website', 'CDN', 'Technology', 'Email Security'].map(tag => (
                 <span
                   key={tag}
-                  className="font-mono text-[10px] text-muted/40 tracking-widest uppercase px-3 py-1 rounded-full border border-white/[0.05]"
+                  className="font-mono text-[10px] text-muted/40 tracking-widest uppercase px-3 py-1 rounded-full border border-invert/[0.05]"
                 >
                   {tag}
                 </span>
@@ -300,7 +413,7 @@ export default function App() {
 
           {/* Sidebar */}
           <aside
-            className="w-[200px] shrink-0 border-r border-white/[0.05] bg-surface flex flex-col overflow-y-auto"
+            className="w-[200px] shrink-0 border-r border-invert/[0.05] bg-surface flex flex-col overflow-y-auto"
             aria-label="Scan modules"
           >
             <span className="font-body text-[9px] font-semibold tracking-[0.22em] text-muted/35 uppercase px-5 pt-5 pb-2">
@@ -320,7 +433,7 @@ export default function App() {
                     disabled={isLoading}
                     className={`
                       relative w-full flex items-center gap-3 px-5 py-3 text-left transition-colors duration-100
-                      ${isActive   ? 'bg-white/[0.035]' : 'hover:bg-white/[0.018]'}
+                      ${isActive   ? 'bg-invert/[0.035]' : 'hover:bg-invert/[0.018]'}
                       ${isLoading  ? 'cursor-default'   : 'cursor-pointer'}
                     `}
                     aria-selected={isActive}
@@ -368,7 +481,7 @@ export default function App() {
           <div className="flex-1 flex flex-col overflow-y-auto">
             {/* Verdict strip — at the top of the content pane */}
             {isDone && (
-              <div className="fade-up border-b border-white/[0.04] shrink-0">
+              <div className="fade-up border-b border-invert/[0.04] shrink-0">
                 <VerdictBanner result={result} />
               </div>
             )}
@@ -394,6 +507,26 @@ export default function App() {
                 ipStatus === 'loading'
                   ? <PendingState />
                   : <IpSection ip={result?.ip} error={errors.ip} />
+              )}
+              {activeTab === 'website' && (
+                websiteStatus === 'loading'
+                  ? <PendingState />
+                  : <WebsiteSection website={result?.website} error={errors.website} />
+              )}
+              {activeTab === 'cdn' && (
+                cdnStatus === 'loading'
+                  ? <PendingState />
+                  : <CdnSection cdn={result?.cdn} error={errors.cdn} />
+              )}
+              {activeTab === 'technology' && (
+                technologyStatus === 'loading'
+                  ? <PendingState />
+                  : <TechnologySection technology={result?.technology} error={errors.technology} />
+              )}
+              {activeTab === 'email_security' && (
+                emailSecurityStatus === 'loading'
+                  ? <PendingState />
+                  : <EmailSecuritySection emailSecurity={result?.email_security} error={errors.email_security} />
               )}
             </div>
           </div>

@@ -25,7 +25,7 @@ export default function IpSection({ ip, error }) {
             const locationParts = [entry.city, entry.region, entry.country].filter(Boolean)
             const location = locationParts.length ? locationParts.join(', ') : entry.location ?? null
             return (
-              <div key={i} className="pl-4 border-l border-white/[0.06]">
+              <div key={i} className="pl-4 border-l border-invert/[0.06]">
                 <div className="mb-3">
                   <CopyableValue value={entry.address ?? entry.ip} className="text-base text-signal font-medium">
                     {entry.address ?? entry.ip}

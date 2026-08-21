@@ -25,6 +25,26 @@ const CAPABILITIES = [
     label: 'IP Intelligence',
     detail: 'ASN mapping, geolocation, and organization per IP. Identifies CDN fronting and direct routing.',
   },
+  {
+    id: 'website',
+    label: 'Website Analysis',
+    detail: 'Page metadata, HTTP status, redirects, and security headers. Audits HSTS, CSP, and cross-origin policies.',
+  },
+  {
+    id: 'cdn',
+    label: 'CDN Detection',
+    detail: 'Compares resolved IPs against known CDN ranges to detect if the origin is fronted by a content delivery network.',
+  },
+  {
+    id: 'technology',
+    label: 'Technology Fingerprinting',
+    detail: 'Identifies web server, backend framework, frontend libraries, CMS, and edge platform from headers and markup.',
+  },
+  {
+    id: 'email',
+    label: 'Email Security',
+    detail: 'SPF and DMARC record validation. Checks whether the domain enforces email authentication policies.',
+  },
 ]
 
 const SAMPLE_JSON = `{
@@ -78,8 +98,8 @@ export default function LandingPage() {
             <span className="font-body text-[10px] font-semibold tracking-[0.15em] text-muted/40 uppercase pl-1">
               STANDARD SCAN
             </span>
-            <div className="rounded-xl bg-surface border border-white/[0.05] overflow-hidden">
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.05]">
+            <div className="rounded-xl bg-surface border border-invert/[0.05] overflow-hidden">
+              <div className="flex items-center gap-2 px-5 py-3 border-b border-invert/[0.05]">
                 <span className="font-mono text-[10px] tracking-widest text-signal/60 uppercase bg-signal/8 px-2 py-0.5 rounded">
                   POST
                 </span>
@@ -96,7 +116,7 @@ export default function LandingPage() {
         {/* Row 2: Architecture Statement */}
         <div className="w-full">
           <p className="font-display font-medium text-xl sm:text-2xl text-ink/85 max-w-3xl leading-snug">
-            Four modules run concurrently against DNS, WHOIS, SSL, and IP-intelligence endpoints, normalized into a single structured response.
+            Eight modules run concurrently against DNS, WHOIS, SSL, IP, website, CDN, technology, and email security endpoints, normalized into a single structured response.
           </p>
         </div>
 
@@ -157,7 +177,7 @@ export default function LandingPage() {
                 In Practice
               </span>
               <p className="font-body text-[13px] text-muted leading-relaxed">
-                A scan of <span className="font-mono text-[11.5px] text-ink/80 px-1 py-0.5 bg-white/[0.03] rounded border border-white/[0.05]">discord.com</span> reveals it is entirely fronted by a CDN. The response yields Cloudflare's infrastructure (ASN <span className="font-mono text-[11.5px] text-ink/80">AS13335</span>), with the true origin server remaining completely hidden from the public DNS and IP resolution layers.
+                A scan of <span className="font-mono text-[11.5px] text-ink/80 px-1 py-0.5 bg-invert/[0.03] rounded border border-invert/[0.05]">discord.com</span> reveals it is entirely fronted by a CDN. The response yields Cloudflare's infrastructure (ASN <span className="font-mono text-[11.5px] text-ink/80">AS13335</span>), with the true origin server remaining completely hidden from the public DNS and IP resolution layers.
               </p>
             </div>
           </div>
@@ -165,7 +185,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-white/[0.04] py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+      <footer className="border-t border-invert/[0.04] py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
         <div className="flex flex-col gap-2">
           <span className="font-display font-bold text-ink/80 tracking-[0.1em]" style={{ fontSize: '0.95rem' }}>
             HOSTHUNTER

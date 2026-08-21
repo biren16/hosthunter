@@ -3,10 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: 255 255 255;
+    --color-surface: 247 248 250;
+    --color-ink: 17 24 39;
+    --color-muted: 107 114 128;
+    --color-signal: 13 148 136; /* Darker teal for light mode */
+    --color-alert: 220 38 38;   /* Darker red for light mode */
+    --color-depth: 108 92 231;
+    --color-invert: 0 0 0;
+  }
+  
+  .dark {
+    --color-bg: 10 10 15;
+    --color-surface: 15 15 24;
+    --color-ink: 226 230 234;
+    --color-muted: 82 93 110;
+    --color-signal: 62 214 196;
+    --color-alert: 232 120 90;
+    --color-depth: 108 92 231;
+    --color-invert: 255 255 255;
+  }
+
   html, body, #root {
     min-height: 100dvh;
-    background-color: #0A0A0F;
-    color: #E2E6EA;
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-ink));
   }
   body {
     font-family: 'Inter', sans-serif;
@@ -36,19 +58,19 @@
   height: 800px;
   top: -280px;
   left: -180px;
-  background: radial-gradient(ellipse, rgba(108, 92, 231, 0.045) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(var(--color-depth) / 0.045) 0%, transparent 70%);
 }
 .app-bg::after {
   width: 600px;
   height: 600px;
   bottom: -200px;
   right: -100px;
-  background: radial-gradient(ellipse, rgba(62, 214, 196, 0.03) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(var(--color-signal) / 0.03) 0%, transparent 70%);
 }
 
 /* ─── Navbar glass ──────────────────────────────────────────────────────── */
 .nav-glass {
-  background: rgba(10, 10, 15, 0.85);
+  background: rgba(var(--color-bg) / 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
@@ -58,8 +80,8 @@
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .search-wrap:focus-within {
-  border-color: rgba(62, 214, 196, 0.22) !important;
-  box-shadow: 0 0 0 3px rgba(62, 214, 196, 0.05), 0 4px 32px rgba(0, 0, 0, 0.5);
+  border-color: rgba(var(--color-signal) / 0.35) !important;
+  box-shadow: 0 0 0 3px rgba(var(--color-signal) / 0.08), 0 4px 32px rgba(var(--color-invert) / 0.08);
 }
 
 /* ─── Wordmark ──────────────────────────────────────────────────────────── */
