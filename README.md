@@ -3,6 +3,7 @@
 A domain reconnaissance and infrastructure analysis platform for cybersecurity professionals, investigators, and researchers.
 
 **Live app:** https://hosthunter-recon.vercel.app
+
 **API:** https://hosthunter.onrender.com
 
 ---
@@ -69,7 +70,7 @@ HostHunter performs passive reconnaissance on any domain — pulling DNS records
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
+| :--- | :--- |
 | Backend | Python 3, FastAPI, Pydantic |
 | DNS | `dnspython` |
 | WHOIS | `python-whois` |
@@ -274,5 +275,7 @@ The frontend follows a "signal intelligence" visual direction rather than the ty
 ## Author
 
 **Biren Kumar**
+
 Final Year B.E. Computer Science and Design
+
 Sri Krishna College of Engineering and Technology
