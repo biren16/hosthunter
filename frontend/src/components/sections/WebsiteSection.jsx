@@ -2,6 +2,7 @@ import { useState } from 'react'
 import MonoValue, { SectionHeader } from '../ui/MonoValue.jsx'
 import KeyValueRow from '../ui/KeyValueRow.jsx'
 import CopyableValue from '../ui/CopyableValue.jsx'
+import StatusBadge from '../ui/StatusBadge.jsx'
 
 /* ─── Security header row with enabled/disabled indicator ─── */
 function HeaderRow({ name, header }) {
@@ -28,15 +29,10 @@ function HeaderRow({ name, header }) {
         <span className="font-body text-[13px] font-medium text-ink/90 flex-1 min-w-0">
           {displayName}
         </span>
-        <span
-          className={`font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-md border ${
-            header.enabled
-              ? 'text-signal border-signal/30 bg-signal/5'
-              : 'text-alert border-alert/30 bg-alert/5'
-          }`}
-        >
-          {header.enabled ? 'SET' : 'MISSING'}
-        </span>
+        <StatusBadge
+          status={header.enabled ? 'PRESENT' : 'MISSING'}
+          variant={header.enabled ? 'signal' : 'alert'}
+        />
       </div>
 
       {header.enabled && header.value && (
@@ -97,12 +93,14 @@ export default function WebsiteSection({ website, error }) {
     const enabledCount = headerEntries.filter(([, h]) => h?.enabled).length
     const totalCount = headerEntries.length
 
-    const metaText = `${enabledCount}/${totalCount} security headers`
+    const metaText = totalCount > 0 ? `${enabledCount}/${totalCount} headers present` : null
 
     const redirected =
       website.requested_url &&
       website.final_url &&
       website.requested_url !== website.final_url
+
+    const hasMetadata = Object.values(meta).some(Boolean)
 
     return (
       <>
@@ -112,11 +110,12 @@ export default function WebsiteSection({ website, error }) {
         <div className="mb-6">
           <KeyValueRow label="Status" value={
             website.status_code ? (
-              <span className="font-mono text-sm">
-                <span className={`${website.status_code < 400 ? 'text-signal' : 'text-alert'}`}>
-                  {website.status_code}
-                </span>
-                <span className="text-muted/50 ml-2">{website.scheme?.toUpperCase()}</span>
+              <span className="font-mono text-sm flex items-center gap-2">
+                <StatusBadge
+                  status={`${website.status_code}`}
+                  variant={website.status_code < 400 ? 'signal' : 'alert'}
+                />
+                <span className="text-muted/50 text-xs">{website.scheme?.toUpperCase()}</span>
               </span>
             ) : null
           } />
@@ -137,39 +136,43 @@ export default function WebsiteSection({ website, error }) {
         </div>
 
         {/* Metadata */}
-        <div className="mb-8">
-          <span className="font-body text-[11px] font-semibold tracking-[0.16em] text-muted/60 uppercase block mb-3">
-            Page Metadata
-          </span>
-          <KeyValueRow label="Title"       value={meta.title} />
-          <KeyValueRow label="Description" value={meta.description} />
-          <KeyValueRow label="Language"    value={meta.language} />
-          <KeyValueRow label="Charset"     value={meta.charset} />
-          <KeyValueRow label="Canonical"   value={meta.canonical ? (
-            <CopyableValue value={meta.canonical} className="text-sm text-ink/85 break-all">
-              {meta.canonical}
-            </CopyableValue>
-          ) : null} />
-          <KeyValueRow label="Robots"      value={meta.robots} />
-          <KeyValueRow label="Generator"   value={meta.generator} />
-          <KeyValueRow label="Favicon"     value={meta.favicon ? (
-            <CopyableValue value={meta.favicon} className="text-sm text-ink/85 break-all">
-              {meta.favicon}
-            </CopyableValue>
-          ) : null} />
-        </div>
+        {hasMetadata && (
+          <div className="mb-8">
+            <span className="font-body text-[11px] font-semibold tracking-[0.16em] text-muted/60 uppercase block mb-3">
+              Page Metadata
+            </span>
+            <KeyValueRow label="Title"       value={meta.title} />
+            <KeyValueRow label="Description" value={meta.description} />
+            <KeyValueRow label="Language"    value={meta.language} />
+            <KeyValueRow label="Charset"     value={meta.charset} />
+            <KeyValueRow label="Canonical"   value={meta.canonical ? (
+              <CopyableValue value={meta.canonical} className="text-sm text-ink/85 break-all">
+                {meta.canonical}
+              </CopyableValue>
+            ) : null} />
+            <KeyValueRow label="Robots"      value={meta.robots} />
+            <KeyValueRow label="Generator"   value={meta.generator} />
+            <KeyValueRow label="Favicon"     value={meta.favicon ? (
+              <CopyableValue value={meta.favicon} className="text-sm text-ink/85 break-all">
+                {meta.favicon}
+              </CopyableValue>
+            ) : null} />
+          </div>
+        )}
 
         {/* Security Headers */}
-        <div>
-          <span className="font-body text-[11px] font-semibold tracking-[0.16em] text-muted/60 uppercase block mb-3">
-            Security Headers
-          </span>
-          <div className="flex flex-col">
-            {headerEntries.map(([key, header]) => (
-              <HeaderRow key={key} name={key} header={header} />
-            ))}
+        {totalCount > 0 && (
+          <div>
+            <span className="font-body text-[11px] font-semibold tracking-[0.16em] text-muted/60 uppercase block mb-3">
+              Security Headers
+            </span>
+            <div className="flex flex-col">
+              {headerEntries.map(([key, header]) => (
+                <HeaderRow key={key} name={key} header={header} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </>
     )
   }

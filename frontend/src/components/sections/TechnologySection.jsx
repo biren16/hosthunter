@@ -1,5 +1,6 @@
 import MonoValue, { SectionHeader } from '../ui/MonoValue.jsx'
 import KeyValueRow from '../ui/KeyValueRow.jsx'
+import StatusBadge from '../ui/StatusBadge.jsx'
 
 /* ─── Pill tag for frameworks / libraries ─── */
 function TechPill({ name }) {
@@ -10,7 +11,27 @@ function TechPill({ name }) {
   )
 }
 
-export default function TechnologySection({ technology, error }) {
+function parseCms(cmsObj, websiteGenerator) {
+  const cmsNameRaw = cmsObj?.name || websiteGenerator || null
+  if (!cmsNameRaw) return { name: null, version: null }
+
+  // Check if cmsNameRaw contains a version string (e.g. "WordPress 6.4.2")
+  const parts = cmsNameRaw.trim().split(/\s+/)
+  if (parts.length >= 2 && /^\d+(\.\d+)*$/.test(parts[parts.length - 1])) {
+    const version = parts.pop()
+    return {
+      name: parts.join(' '),
+      version,
+    }
+  }
+
+  return {
+    name: cmsNameRaw,
+    version: cmsObj?.version || null,
+  }
+}
+
+export default function TechnologySection({ technology, error, website }) {
   if (error) {
     return (
       <>
@@ -24,7 +45,7 @@ export default function TechnologySection({ technology, error }) {
     const server = technology.web_server || {}
     const backend = technology.backend || {}
     const frontend = technology.frontend || {}
-    const cms = technology.cms || {}
+    const cms = parseCms(technology.cms, website?.metadata?.generator)
     const jsLibs = technology.javascript_libraries || []
     const edge = technology.edge_platform || {}
 
@@ -37,22 +58,30 @@ export default function TechnologySection({ technology, error }) {
     const fwCount = (frontend.frameworks?.length || 0) + jsLibs.length
     const total = detected.length + fwCount
 
-    const meta = total > 0 ? `${total} identified` : 'No technologies identified'
+    const meta = total > 0 ? `${total} detected` : 'None identified'
 
     const serverDisplay = server.name
       ? `${server.name}${server.version ? ` / ${server.version}` : ''}`
+      : null
+
+    const cmsDisplay = cms.name
+      ? `${cms.name}${cms.version ? ` / ${cms.version}` : ''}`
+      : null
+
+    const edgeDisplay = edge.detected
+      ? `${edge.detected}${edge.source ? ` (${edge.source})` : ''}`
       : null
 
     return (
       <>
         <SectionHeader title="Technology" meta={meta} />
 
-        {/* Server & Backend */}
+        {/* Server, Backend, CMS, Edge */}
         <div className="mb-6">
           <KeyValueRow label="Web Server" value={serverDisplay} />
           <KeyValueRow label="Backend"    value={backend.framework} />
-          <KeyValueRow label="CMS"        value={cms.name} />
-          <KeyValueRow label="Edge / CDN" value={edge.detected} />
+          <KeyValueRow label="CMS"        value={cmsDisplay} />
+          <KeyValueRow label="Edge / CDN" value={edgeDisplay} />
         </div>
 
         {/* Frontend Frameworks */}

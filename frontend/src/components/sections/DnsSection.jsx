@@ -2,7 +2,7 @@ import { useState } from 'react'
 import MonoValue, { SectionHeader } from '../ui/MonoValue.jsx'
 import CopyableValue from '../ui/CopyableValue.jsx'
 
-function RecordGroup({ title, records, defaultCollapsed = false, copyable = false }) {
+function RecordGroup({ title, records, defaultCollapsed = false, copyable = true }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
 
   if (!records || records.length === 0) return null
@@ -11,14 +11,14 @@ function RecordGroup({ title, records, defaultCollapsed = false, copyable = fals
     <div className="mb-6 last:mb-0">
       <div className="flex items-center gap-3 mb-2.5">
         <span className="font-body text-[11px] font-semibold tracking-[0.16em] text-muted/60 uppercase">
-          {title}
+          {title} ({records.length})
         </span>
         {defaultCollapsed && (
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="font-mono text-[10px] text-signal/70 hover:text-signal transition-colors"
           >
-            {collapsed ? `Show ${records.length}` : 'Collapse'}
+            {collapsed ? `Show all ${records.length}` : 'Collapse'}
           </button>
         )}
       </div>
@@ -63,11 +63,11 @@ export default function DnsSection({ dns, error }) {
     return (
       <>
         <SectionHeader title="DNS Resolution" meta={`${count} records`} />
-        <RecordGroup title="Addresses" records={addresses} copyable />
-        <RecordGroup title="Mail Routing" records={mx} />
-        <RecordGroup title="Name Servers" records={ns} copyable />
-        <RecordGroup title="Verification & Policy" records={txt} defaultCollapsed={txt.length > 0} />
-        <RecordGroup title="Other" records={others} />
+        <RecordGroup title="Addresses (A / AAAA)" records={addresses} copyable />
+        <RecordGroup title="Mail Routing (MX)" records={mx} copyable />
+        <RecordGroup title="Name Servers (NS)" records={ns} copyable />
+        <RecordGroup title="Verification & Policy (TXT)" records={txt} defaultCollapsed={txt.length > 6} copyable />
+        <RecordGroup title="Other" records={others} copyable />
       </>
     )
   }

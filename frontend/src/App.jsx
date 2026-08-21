@@ -9,16 +9,7 @@ import CdnSection            from './components/sections/CdnSection.jsx'
 import TechnologySection     from './components/sections/TechnologySection.jsx'
 import EmailSecuritySection  from './components/sections/EmailSecuritySection.jsx'
 import LandingPage   from './components/LandingPage.jsx'
-
-/* ─── Status Dot ─────────────────────────────────────────────────────────── */
-function StatusDot({ status }) {
-  const base = 'w-1.5 h-1.5 rounded-full flex-shrink-0'
-  if (status === 'loading')  return <span className={`${base} bg-muted dot-pulse`} aria-hidden="true" />
-  if (status === 'resolved') return <span className={`${base} bg-signal`}           aria-hidden="true" />
-  if (status === 'warning')  return <span className={`${base} bg-alert`}            aria-hidden="true" />
-  if (status === 'error')    return <span className={`${base} bg-alert`}            aria-hidden="true" />
-  return                            <span className={`${base} bg-muted/20`}         aria-hidden="true" />
-}
+import StatusDot     from './components/ui/StatusDot.jsx'
 
 /* ─── Scan sweep line ────────────────────────────────────────────────────── */
 function ScanSweep({ visible }) {
@@ -42,7 +33,7 @@ function SearchInput({ value, onChange, onSubmit, disabled, autoFocus, compact =
     <form onSubmit={onSubmit} className="w-full" role="search">
       <div
         className={`search-wrap relative flex items-center bg-surface border border-invert/[0.08] rounded-xl ${
-          compact ? 'px-3.5 py-2' : 'px-5 py-3.5'
+          compact ? 'px-3 py-1.5' : 'px-5 py-3.5'
         }`}
       >
         {/* Search icon */}
@@ -68,8 +59,8 @@ function SearchInput({ value, onChange, onSubmit, disabled, autoFocus, compact =
           value={value}
           onChange={onChange}
           placeholder="example.com"
-          className={`flex-1 bg-transparent border-none outline-none font-mono text-ink placeholder:text-muted/25 disabled:opacity-40 ${
-            compact ? 'text-sm mx-3' : 'text-base mx-4'
+          className={`flex-1 bg-transparent border-none outline-none font-mono text-ink placeholder:text-muted/25 disabled:opacity-40 min-w-0 ${
+            compact ? 'text-xs mx-2.5' : 'text-base mx-4'
           }`}
           disabled={disabled}
           spellCheck="false"
@@ -82,7 +73,7 @@ function SearchInput({ value, onChange, onSubmit, disabled, autoFocus, compact =
           type="submit"
           disabled={disabled || !value.trim()}
           className={`flex-shrink-0 font-mono font-semibold text-bg bg-signal hover:bg-signal/85 active:bg-signal/75 disabled:opacity-25 disabled:cursor-not-allowed rounded-lg transition-all duration-150 ${
-            compact ? 'px-3 py-1.5 text-[11px] tracking-wide' : 'px-5 py-2 text-sm tracking-wide'
+            compact ? 'px-2.5 py-1 text-[11px] tracking-wide' : 'px-5 py-2 text-sm tracking-wide'
           }`}
         >
           {disabled ? 'Scanning' : 'Scan'}
@@ -266,19 +257,19 @@ export default function App() {
   const emailSecuritySubtext = useMemo(() => {
     if (!result?.email_security || result.email_security.error) return null
     const es = result.email_security
-    const n = [es.spf?.enabled, es.dmarc?.enabled].filter(Boolean).length
-    return `${n}/2 protocols`
+    const n = [es.spf?.enabled, es.dmarc?.enabled, es.dkim?.supported === true].filter(Boolean).length
+    return `${n}/3 configured`
   }, [result?.email_security])
 
   const tabs = [
-    { id: 'dns',            label: 'DNS Resolution',   status: dnsStatus,            subtext: dnsSubtext },
-    { id: 'whois',          label: 'WHOIS Registry',   status: whoisStatus,          subtext: whoisSubtext },
-    { id: 'ssl',            label: 'SSL / TLS',        status: sslStatus,            subtext: sslSubtext },
-    { id: 'ip',             label: 'IP Intelligence',  status: ipStatus,             subtext: ipSubtext },
-    { id: 'website',        label: 'Website',          status: websiteStatus,        subtext: websiteSubtext },
-    { id: 'cdn',            label: 'CDN Detection',    status: cdnStatus,            subtext: cdnSubtext },
-    { id: 'technology',     label: 'Technology',        status: technologyStatus,     subtext: technologySubtext },
-    { id: 'email_security', label: 'Email Security',   status: emailSecurityStatus,  subtext: emailSecuritySubtext },
+    { id: 'dns',            label: 'DNS Resolution',   shortLabel: 'DNS',       status: dnsStatus,            subtext: dnsSubtext },
+    { id: 'whois',          label: 'WHOIS Registry',   shortLabel: 'WHOIS',     status: whoisStatus,          subtext: whoisSubtext },
+    { id: 'ssl',            label: 'SSL / TLS',        shortLabel: 'SSL/TLS',   status: sslStatus,            subtext: sslSubtext },
+    { id: 'ip',             label: 'IP Intelligence',  shortLabel: 'IP Intel',  status: ipStatus,             subtext: ipSubtext },
+    { id: 'website',        label: 'Website',          shortLabel: 'Website',   status: websiteStatus,        subtext: websiteSubtext },
+    { id: 'cdn',            label: 'CDN Detection',    shortLabel: 'CDN',       status: cdnStatus,            subtext: cdnSubtext },
+    { id: 'technology',     label: 'Technology',        shortLabel: 'Tech',      status: technologyStatus,     subtext: technologySubtext },
+    { id: 'email_security', label: 'Email Security',   shortLabel: 'Email Sec', status: emailSecurityStatus,  subtext: emailSecuritySubtext },
   ]
 
   return (
@@ -287,7 +278,7 @@ export default function App() {
 
       {/* ── Persistent navbar ─────────────────────────────────────────────── */}
       <header
-        className="nav-glass fixed top-0 inset-x-0 z-50 flex items-center gap-4 px-6 sm:px-8 h-14 border-b border-invert/[0.05]"
+        className="nav-glass fixed top-0 inset-x-0 z-50 flex items-center gap-3 sm:gap-4 px-4 sm:px-8 h-14 border-b border-invert/[0.05]"
         role="banner"
       >
         {/* Wordmark — always clickable, always resets to idle */}
@@ -301,7 +292,7 @@ export default function App() {
 
         {/* Compact search — only visible in results view */}
         {showResults && (
-          <div className="flex-1 max-w-sm fade-up">
+          <div className="flex-1 max-w-xs sm:max-w-sm fade-up min-w-0">
             <SearchInput
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
@@ -312,10 +303,10 @@ export default function App() {
           </div>
         )}
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 shrink-0">
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-invert/[0.08] bg-surface hover:bg-invert/[0.04] text-muted hover:text-ink font-mono text-[11px] transition-all duration-150 focus:outline-none"
+            className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-invert/[0.08] bg-surface hover:bg-invert/[0.04] text-muted hover:text-ink font-mono text-[11px] transition-all duration-150 focus:outline-none"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
@@ -409,12 +400,44 @@ export default function App() {
 
       {/* ── Results view ──────────────────────────────────────────────────── */}
       {showResults && (
-        <div className="relative z-10 flex h-dvh pt-14" role="main">
+        <div className="relative z-10 flex flex-col sm:flex-row h-dvh pt-14 overflow-hidden" role="main">
 
-          {/* Sidebar */}
+          {/* Mobile horizontal module nav (sm:hidden) */}
+          <nav
+            className="sm:hidden flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-4 py-2 bg-surface border-b border-invert/[0.05] shrink-0 no-scrollbar"
+            aria-label="Scan modules mobile"
+          >
+            {tabs.map((tab) => {
+              const isActive  = activeTab === tab.id
+              const isLoading = tab.status === 'loading'
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => !isLoading && setActiveTab(tab.id)}
+                  disabled={isLoading}
+                  className={`
+                    relative flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors shrink-0
+                    ${isActive ? 'bg-invert/[0.07] text-ink font-semibold' : 'text-muted/70 hover:text-ink bg-invert/[0.015]'}
+                    ${isLoading ? 'cursor-default' : 'cursor-pointer'}
+                  `}
+                  aria-selected={isActive}
+                  role="tab"
+                >
+                  <StatusDot status={tab.status} />
+                  <span>{tab.shortLabel}</span>
+                  {isActive && (
+                    <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-signal rounded-t" aria-hidden="true" />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+
+          {/* Desktop Sidebar (hidden on mobile, flex on sm+) */}
           <aside
-            className="w-[200px] shrink-0 border-r border-invert/[0.05] bg-surface flex flex-col overflow-y-auto"
-            aria-label="Scan modules"
+            className="hidden sm:flex w-[200px] shrink-0 border-r border-invert/[0.05] bg-surface flex-col overflow-y-auto"
+            aria-label="Scan modules desktop"
           >
             <span className="font-body text-[9px] font-semibold tracking-[0.22em] text-muted/35 uppercase px-5 pt-5 pb-2">
               Modules
@@ -478,7 +501,7 @@ export default function App() {
           </aside>
 
           {/* Content pane */}
-          <div className="flex-1 flex flex-col overflow-y-auto">
+          <div className="flex-1 flex flex-col overflow-y-auto min-w-0">
             {/* Verdict strip — at the top of the content pane */}
             {isDone && (
               <div className="fade-up border-b border-invert/[0.04] shrink-0">
@@ -487,7 +510,7 @@ export default function App() {
             )}
 
             {/* Active section */}
-            <div key={activeTab} className="flex-1 px-8 sm:px-10 py-8 sm:py-10 fade-up">
+            <div key={activeTab} className="flex-1 px-4 sm:px-10 py-6 sm:py-10 fade-up min-w-0">
               {activeTab === 'dns' && (
                 dnsStatus === 'loading'
                   ? <PendingState />
@@ -521,7 +544,7 @@ export default function App() {
               {activeTab === 'technology' && (
                 technologyStatus === 'loading'
                   ? <PendingState />
-                  : <TechnologySection technology={result?.technology} error={errors.technology} />
+                  : <TechnologySection technology={result?.technology} error={errors.technology} website={result?.website} />
               )}
               {activeTab === 'email_security' && (
                 emailSecurityStatus === 'loading'

@@ -40,11 +40,7 @@
   }
 }
 
-/* ─── Ambient atmosphere ────────────────────────────────────────────────────
-   Barely-there gradient atmosphere. These are not visible design elements —
-   they read as atmosphere only. Opacity is deliberately very low.
-   Never the first thing a viewer notices.
-────────────────────────────────────────────────────────────────────────── */
+/* ─── Ambient atmosphere ────────────────────────────────────────────────── */
 .app-bg::before,
 .app-bg::after {
   content: '';
@@ -140,4 +136,13 @@
   z-index: 99;
   opacity: 0.022;
   mix-blend-mode: overlay;
+}
+
+/* ─── No Scrollbar Utility ──────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

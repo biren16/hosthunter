@@ -116,26 +116,43 @@ def detect_dmarc(records):
 
 def detect_dkim(records):
 
-            for item in records:
+    for item in records:
 
-                record = item["record"]
-                selector = item["selector"]
+        record = item["record"]
+        selector = item["selector"]
 
+        if not record.lower().startswith("v=dkim1"):
+            continue
 
-                if record.lower().startswith("v=dkim1"):
-                    return {
-                        "supported": True,
-                        "selector": selector,
-                        "record": record,
-                    }
+        public_key = None
 
+        for part in record.split(";"):
+            part = part.strip()
 
+            if part.lower().startswith("p="):
+                public_key = part.split("=", 1)[1].strip()
+                break
+
+        if public_key:
             return {
-                "supported": "Unknown",
-                "selector": None,
-                "record": None,
-                "reason": (
-                    "No DKIM record found using common selectors; "
-                    "the domain may use a custom selector."
-                ),
+                "supported": True,
+                "selector": selector,
+                "record": record,
             }
+
+        return {
+            "supported": False,
+            "selector": selector,
+            "record": record,
+            "reason": "DKIM record exists but contains an empty public key.",
+        }
+
+    return {
+        "supported": "Unknown",
+        "selector": None,
+        "record": None,
+        "reason": (
+            "No DKIM record found using common selectors; "
+            "the domain may use a custom selector."
+        ),
+    }
