@@ -1,58 +1,55 @@
-# HostHunter — Architecture Decisions
+# HostHunter — Engineering Decisions
 
-## 1. Passive Reconnaissance
+## 1. Modular Reconnaissance Architecture
 
-**Decision:** HostHunter focuses on passive domain reconnaissance.
+**Decision:** HostHunter separates reconnaissance into independent modules for DNS, WHOIS, SSL, IP intelligence, website analysis, technology detection, CDN detection, and email security.
 
-**Reason:** The project is intended to gather publicly available
-infrastructure intelligence without performing exploitation or intrusive
-scanning.
+**Why:** Each module has a focused responsibility, making the system easier to extend and maintain as new reconnaissance capabilities are added.
 
 ---
 
-## 2. Frontend Design
+## 2. Partial Failure Handling
 
-**Decision:** Use a signal-intelligence visual language instead of a
-traditional hacker/terminal aesthetic.
+**Decision:** A failure in one reconnaissance module does not terminate the complete scan.
 
-**Reason:** The interface should communicate technical information clearly
-without relying on decorative cybersecurity clichés.
+**Why:** External DNS, WHOIS, HTTP, and IP intelligence lookups can fail independently. Returning successful results alongside module-specific errors makes the API more resilient and useful.
 
 ---
 
-## 3. Email Security
+## 3. Public-Destination Validation
 
-**Decision:** Treat SPF, DMARC, and DKIM as three independent checks.
+**Decision:** HTTP requests validate the resolved destination before connecting.
 
-**Reason:** Each protocol provides different information about a domain's
-email configuration and should not be collapsed into a single status.
-
----
-
-## 4. DKIM Unknown State
-
-**Decision:** DKIM may return `Unknown`.
-
-**Reason:** HostHunter checks a defined set of common selectors. A domain
-may use a custom selector that cannot be discovered through that approach.
-`Unknown` therefore means "not determined", not "not configured".
+**Why:** The reconnaissance endpoint accepts domains supplied by users, so requests must not be allowed to reach private or internal network destinations.
 
 ---
 
-## 5. Backend Data Fidelity
+## 4. DKIM Detection
 
-**Decision:** The frontend must display actual backend results and must not
-invent fallback data.
+**Decision:** DKIM detection checks a defined set of common selectors and reports `Unknown` when no usable record is found.
 
-**Reason:** Reconnaissance results need to remain traceable to the
-underlying scan data.
+**Why:** A missing result does not necessarily mean DKIM is disabled. A domain may use a custom selector that is outside the selectors HostHunter checks.
 
 ---
 
-## 6. Verdicts
+## 5. Backend as the Source of Truth
 
-**Decision:** The verdict banner provides a synthesized interpretation
-rather than an arbitrary numerical security score.
+**Decision:** The frontend renders reconnaissance results returned by the backend rather than duplicating reconnaissance logic.
 
-**Reason:** A single score could imply a level of certainty that the
-underlying reconnaissance data does not support.
+**Why:** This keeps the scan logic centralized and ensures that the information presented in the UI corresponds to the actual API response.
+
+---
+
+## 6. Explicit Uncertainty
+
+**Decision:** HostHunter distinguishes between states such as detected, missing, invalid, and unknown instead of treating every unsuccessful lookup as a negative result.
+
+**Why:** Reconnaissance data is inherently incomplete. Representing uncertainty explicitly avoids making claims that the scan cannot actually establish.
+
+---
+
+## 7. No Arbitrary Security Score
+
+**Decision:** The result interface uses a synthesized verdict rather than assigning a numerical security score.
+
+**Why:** The collected reconnaissance data provides observations about infrastructure and configuration, but does not by itself justify a precise overall security rating.
