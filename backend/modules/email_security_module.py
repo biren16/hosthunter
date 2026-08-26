@@ -1,5 +1,6 @@
 import dns.resolver
 
+
 COMMON_DKIM_SELECTORS = [
     "default",
     "google",
@@ -9,6 +10,9 @@ COMMON_DKIM_SELECTORS = [
     "s2",
     "k1",
 ]
+
+DNS_LIFETIME = 5
+
 
 def email_security_lookup(domain):
     records = get_txt_records(domain)
@@ -21,38 +25,44 @@ def email_security_lookup(domain):
         "dkim": detect_dkim(dkim_records),
     }
 
+
 def get_txt_records(domain):
     records = []
+
     try:
-        answers = dns.resolver.resolve(domain, "TXT")
+        answers = dns.resolver.resolve(
+            domain,
+            "TXT",
+            lifetime=DNS_LIFETIME,
+        )
 
         for answer in answers:
             records.append(
                 answer.to_text().strip('"')
             )
 
-    except dns.resolver.NoAnswer:
-        pass
-
-    except dns.resolver.NXDOMAIN:
-        pass
-
-    except dns.resolver.NoNameservers:
+    except (
+        dns.resolver.NoAnswer,
+        dns.resolver.NXDOMAIN,
+        dns.resolver.NoNameservers,
+        dns.resolver.LifetimeTimeout,
+    ):
         pass
 
     return records
+
 
 def get_dkim_records(domain):
     records = []
 
     for selector in COMMON_DKIM_SELECTORS:
-
         dkim_domain = f"{selector}._domainkey.{domain}"
 
         try:
             answers = dns.resolver.resolve(
                 dkim_domain,
                 "TXT",
+                lifetime=DNS_LIFETIME,
             )
 
             for answer in answers:
@@ -67,35 +77,33 @@ def get_dkim_records(domain):
             dns.resolver.NoAnswer,
             dns.resolver.NXDOMAIN,
             dns.resolver.NoNameservers,
+            dns.resolver.LifetimeTimeout,
         ):
             continue
 
     return records
 
+
 def detect_spf(records):
     for record in records:
-
         if record.lower().startswith("v=spf1"):
             return {
                 "enabled": True,
                 "record": record,
             }
-        
+
     return {
         "enabled": False,
         "record": None,
     }
 
+
 def detect_dmarc(records):
     for record in records:
-
         if record.lower().startswith("v=dmarc1"):
-
             policy = None
 
-            parts = record.split(";")
-
-            for part in parts:
+            for part in record.split(";"):
                 part = part.strip()
 
                 if part.lower().startswith("p="):
@@ -103,21 +111,20 @@ def detect_dmarc(records):
                     break
 
             return {
-            "enabled": True,
-            "policy": policy,
-            "record": record,
+                "enabled": True,
+                "policy": policy,
+                "record": record,
             }
 
     return {
-    "enabled": False,
-    "policy": None,
-    "record": None,
+        "enabled": False,
+        "policy": None,
+        "record": None,
     }
 
+
 def detect_dkim(records):
-
     for item in records:
-
         record = item["record"]
         selector = item["selector"]
 
