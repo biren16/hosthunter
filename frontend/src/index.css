@@ -586,10 +586,10 @@ html.theme-transitioning body * {
 .domain-search__submit:hover,
 .domain-search__submit:active { background: transparent; color: #0D0B09; transform: translateX(3px); opacity: .78; }
 .domain-search__submit:focus-visible { outline: 2px solid #B68A4A; outline-offset: 4px; }
-.dark .domain-search__control { background: #0D0B09; color: #F3EDE3; box-shadow: none; }
+.dark .domain-search__control { background: transparent; color: #F3EDE3; box-shadow: none; }
 .dark .domain-search__control:hover,
 .dark .domain-search.is-focused .domain-search__control,
-.dark .domain-search__resting { background: #0D0B09; }
+.dark .domain-search__resting { background: transparent; }
 .dark .domain-search__control,
 .dark .domain-search input { border: 0 !important; outline: 0 !important; box-shadow: none !important; }
 .dark .domain-search input:-webkit-autofill,
