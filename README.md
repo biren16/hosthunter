@@ -1,172 +1,125 @@
 # HostHunter
 
-A domain reconnaissance and infrastructure analysis platform for cybersecurity professionals, investigators, and researchers.
+HostHunter is an open-source passive reconnaissance tool for turning a
+domain’s publicly observable footprint into one inspectable investigation.
+It gathers evidence across independent intelligence modules and presents the
+returned record with partial results and uncertainty kept explicit.
 
-**Live app:** https://hosthunter-recon.vercel.app
+**Live application:** https://hosthunter-recon.vercel.app  
+**Hosted API:** https://hosthunter.onrender.com
 
-**API:** https://hosthunter.onrender.com
+## What HostHunter reads
 
----
+Each investigation requests eight independent sources of public domain
+intelligence:
 
-## What it does
+1. **DNS** — A, AAAA, MX, NS, and TXT records, delegation, and mail topology.
+2. **WHOIS** — Registrar, lifecycle dates, nameservers, DNSSEC state, and
+   available registration metadata.
+3. **SSL / TLS** — Certificate identity, issuer, validity, public-key details,
+   signatures, and fingerprints.
+4. **IP intelligence** — Resolved addresses, ASN, organization, geolocation,
+   IP version, and reverse DNS.
+5. **Website** — HTTP status, redirects, metadata, final URL, and returned
+   security headers.
+6. **Technology** — Observable server, framework, CMS, frontend, and platform
+   signals inferred from headers and markup.
+7. **CDN** — Resolved-address and provider signals for known CDN infrastructure.
+8. **Email security** — Published SPF and DMARC records, plus DKIM discovery
+   through supported common selectors.
 
-HostHunter performs passive reconnaissance on any domain — pulling DNS records, WHOIS registration data, SSL certificate details, IP/network intelligence, website metadata & security headers, technology stack fingerprints, CDN detection, and email security configurations (SPF, DMARC, DKIM) into a single unified API response. No active exploitation, no intrusion — just intelligence gathering from public sources.
+HostHunter does not exploit, intrude on, or actively probe a target. A failed
+lookup does not erase successful module results; unavailable, unknown, and
+not-detected states remain distinct from confirmed absence.
 
----
+## How it works
 
-## Features
+The application follows a simple flow:
 
-**DNS Analysis**
-- A, AAAA, MX, NS, and TXT record enumeration
-- Domain existence verification
-- Nameserver identification
-- TXT record verification & policy extraction
+1. Enter a domain in the landing-page investigation control.
+2. The backend validates and normalizes the domain.
+3. The eight modules collect their available public evidence independently.
+4. The frontend presents the normalized response, module details, provenance,
+   and any module-level errors.
 
-**WHOIS Intelligence**
-- Registrar and registrant organization details
-- Registrant country
-- Registration, update, and expiration dates
-- Domain status flags and DNSSEC status (signed/unsigned)
+The frontend never changes the backend response schema to fit presentation
+examples. Technical values remain available alongside plain-language context.
 
-**SSL Certificate Analysis**
-- Certificate subject and issuer details (common name, organization, country)
-- Validity period and days until expiry
-- Public key algorithm, key size, and curve
-- SHA256 and SHA1 fingerprints
-- Signature algorithm
+## Repository layout
 
-**IP Intelligence**
-- Resolves every A/AAAA record for a domain (IPv4 and IPv6)
-- Geolocation (country, city, region, coordinates, timezone) per IP
-- ASN and organization/ISP identification
-- Reverse DNS lookups (PTR records)
-- Routing scope identification (global vs. private)
-
-**Website Analysis**
-- HTTP status codes, scheme, final URL, and redirect tracking
-- Page metadata extraction (title, description, language, charset, canonical URL, robots, generator, favicon)
-- Security header analysis (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP, COEP, CORP) with presence indicators and threat explanations
-
-**Technology Fingerprinting**
-- Web server identification and version extraction (e.g. Nginx, Apache, ATS, Cloudflare)
-- Backend framework detection (via HTTP headers)
-- Content Management System (CMS) detection and version parsing (e.g. WordPress, Drupal)
-- Edge / CDN platform identification
-- Frontend framework detection (React, Vue, Next.js, Angular)
-- JavaScript library detection (jQuery, Bootstrap, Tailwind, Alpine.js, htmx)
-
-**CDN Detection**
-- Active matching against CDN IP ranges (e.g. Cloudflare) and headers
-- Matched IP identification across resolved addresses
-- CDNs vs. direct origin routing identification
-
-**Email Security Analysis**
-- **SPF**: Evaluation of published SPF TXT records (`v=spf1`)
-- **DMARC**: Evaluation of DMARC records (`_dmarc.<domain>`) and enforcement policy extraction (`reject`, `quarantine`, `none`)
-- **DKIM**: Active scanning across common DKIM selectors (`default`, `google`, `selector1`, `selector2`, `s1`, `s2`, `k1`), selector identification, public key validation (handling empty keys `p=`), and explicit fallback status when custom selectors are used (`Unknown`)
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-| :--- | :--- |
-| Backend | Python 3, FastAPI, Pydantic |
-| DNS | `dnspython` |
-| WHOIS | `python-whois` |
-| SSL | `ssl`, `cryptography` |
-| IP Intelligence | `requests`, `ipaddress`, `socket`, ipinfo.io API |
-| Web & Tech Scraping | `BeautifulSoup4`, `requests` |
-| Frontend | React 18, Tailwind CSS, Vite |
-| Backend hosting | Render |
-| Frontend hosting | Vercel |
-| Database | MongoDB (planned) |
-
----
-
-## Project Structure
-
-```
+```text
 HostHunter/
-│
 ├── backend/
 │   ├── main.py
 │   ├── requirements.txt
-│   ├── data/
-│   │   ├── ips-v4.txt
-│   │   └── ips-v6.txt
-│   └── modules/
-│       ├── dns_module.py
-│       ├── whois_module.py
-│       ├── ssl_module.py
-│       ├── ip_module.py
-│       ├── website_module.py
-│       ├── technology_module.py
-│       ├── cdn_module.py
-│       └── email_security_module.py
-│
-├── frontend/
+│   ├── data/                  # CDN/IP range data
+│   ├── modules/               # Eight passive intelligence modules
+│   └── utils/                 # Shared network helpers
+├── frontend/                  # Current React application
 │   ├── src/
 │   │   ├── App.jsx
 │   │   ├── components/
-│   │   │   ├── LandingPage.jsx
-│   │   │   ├── ScanInput.jsx
-│   │   │   ├── VerdictBanner.jsx
-│   │   │   ├── SweepLine.jsx
-│   │   │   ├── sections/       # DNS, WHOIS, SSL, IP, Website, CDN, Tech, Email Security panels
-│   │   │   └── ui/              # Shared UI primitives (StatusBadge, CopyableValue, KeyValueRow, StatusDot, etc.)
-│   │   └── index.css
+│   │   │   ├── landing/
+│   │   │   ├── scanning/
+│   │   │   ├── results/
+│   │   │   ├── layout/
+│   │   │   └── ui/
+│   │   ├── context/            # Theme state and persistence
+│   │   └── lib/                # API, validation, navigation, and semantics
 │   ├── package.json
-│   └── vite.config.js
-│
-├── README.md
-└── .gitignore
+│   ├── vite.config.js
+│   └── tailwind.config.js
+├── frontend-legacy/            # Earlier frontend, retained for reference
+├── DESIGN_SYSTEM.md
+├── PRODUCT.md
+├── UI_PATTERNS.md
+└── README.md
 ```
 
----
+## Local development
 
-## Getting Started (local development)
-
-### Backend
+### 1. Start the API
 
 ```bash
-git clone https://github.com/biren16/hosthunter
+git clone https://github.com/biren16/hosthunter.git
 cd hosthunter/backend
 
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# Add your ipinfo token if required (optional)
-echo "IPINFO_TOKEN=your_token_here" > .env
+# Optional: enables IP metadata enrichment where configured
+printf 'IPINFO_TOKEN=your_token_here\n' > .env
 
-# Start the API server
 uvicorn main:app --reload
 ```
 
-API will be available at `http://localhost:8000`
-Interactive docs at `http://localhost:8000/docs`
+The API runs at `http://127.0.0.1:8000` and exposes interactive documentation
+at `http://127.0.0.1:8000/docs`.
 
-### Frontend
+### 2. Start the current frontend
+
+In a second terminal:
 
 ```bash
 cd hosthunter/frontend
 npm install
-
-# Point the frontend at your local backend
-echo "VITE_API_URL=http://localhost:8000" > .env.local
-
 npm run dev
 ```
 
----
+The Vite development server runs on port `5175`. By default, the frontend
+calls `http://127.0.0.1:8000`; set `VITE_API_URL` in `frontend/.env.local` to
+use another API endpoint:
 
-## API Usage
+```bash
+VITE_API_URL=http://127.0.0.1:8000
+```
 
-**POST** `/scan`
+## API
+
+### `POST /scan`
+
+Request:
 
 ```json
 {
@@ -174,108 +127,61 @@ npm run dev
 }
 ```
 
-**Response**
+The response contains the normalized domain, `domainexists`, and results for
+`dns`, `whois`, `ssl`, `ip`, `website`, `technology`, `cdn`, and
+`email_security`. When one or more modules fail, an `errors` object identifies
+those module-level failures while successful results remain in the response.
+
+Example shape:
 
 ```json
 {
   "domain": "google.com",
   "domainexists": true,
-  "dns": {
-    "A": ["142.250.x.x"],
-    "AAAA": ["2404:6800:..."],
-    "MX": ["10 smtp.google.com."],
-    "NS": ["ns1.google.com.", "..."],
-    "TXT": ["v=spf1 include:_spf.google.com ~all"]
-  },
-  "whois": {
-    "domain_name": "google.com",
-    "registrar": "MarkMonitor Inc.",
-    "organization": "Google LLC",
-    "country": "US",
-    "creation_date": "1997-09-15",
-    "status": ["clientDeleteProhibited", "..."],
-    "dnssec": "unsigned"
-  },
-  "ssl": {
-    "subject": { "common_name": "*.google.com" },
-    "issuer": { "organization_name": "Google Trust Services", "common_name": "WR2", "country_name": "US" },
-    "days_until_expiry": 73,
-    "is_expired": false,
-    "public_key_algorithm": "EC",
-    "signature_algorithm": "ecdsa-with-SHA256",
-    "fingerprint_sha256": "..."
-  },
-  "ip": {
-    "ips": [
-      {
-        "address": "142.250.x.x",
-        "version": 4,
-        "is_global": true,
-        "organization": "Google LLC",
-        "asn": "AS15169",
-        "country": "US",
-        "city": "Mountain View",
-        "reverse_dns": null
-      }
-    ]
-  },
-  "website": {
-    "status_code": 200,
-    "scheme": "https",
-    "final_url": "https://www.google.com/",
-    "security_headers": {
-      "strict_transport_security": { "enabled": true, "value": "max-age=31536000", "description": "..." }
-    }
-  },
-  "cdn": {
-    "detected": false,
-    "provider": null,
-    "matched_ip": null,
-    "resolved_ips": ["142.250.x.x"]
-  },
-  "technology": {
-    "web_server": { "name": "gws", "version": null },
-    "backend": { "framework": null },
-    "cms": { "name": null },
-    "frontend": { "frameworks": [] }
-  },
-  "email_security": {
-    "spf": { "enabled": true, "record": "v=spf1 include:_spf.google.com ~all" },
-    "dmarc": { "enabled": true, "policy": "reject", "record": "v=DMARC1; p=reject; ..." },
-    "dkim": { "supported": "Unknown", "selector": null, "record": null, "reason": "No DKIM record found using common selectors; the domain may use a custom selector." }
-  }
+  "dns": {},
+  "whois": {},
+  "ssl": {},
+  "ip": {},
+  "website": {},
+  "technology": {},
+  "cdn": {},
+  "email_security": {},
+  "errors": {}
 }
 ```
 
-If any individual module fails (e.g. a WHOIS lookup times out), the response still returns whatever data succeeded, with an `errors` object indicating which module(s) failed and why — a single failed lookup never blocks the rest of the scan.
+Individual module fields vary with the evidence returned by the source. The
+backend is the source of truth for the response contract.
 
----
+## Development checks
 
-## Design
+Run these from `frontend/` before opening a change:
 
-The frontend follows a "signal intelligence" visual direction rather than the typical dark-terminal/hacker aesthetic — no green-on-black, no decorative glitch effects. Verdict-first result presentation (a one-line synthesized summary before the raw data), monospace typography reserved specifically for data values, a restrained two-accent-color system (teal for verified/healthy states, coral for warnings, amber for pending/unknowns), and responsive mobile/desktop navigation are deliberate choices aimed at making the tool read as a serious engineering product.
+```bash
+npm run lint
+npm run build
+```
 
----
+Backend changes should preserve the API contract, partial-result behavior,
+and explicit uncertainty semantics. Frontend changes should follow
+`DESIGN_SYSTEM.md` and keep animation independent from the data lifecycle.
 
-## Roadmap
+## Design principles
 
-- [x] Phase 0 — Core reconnaissance modules (DNS, WHOIS, SSL)
-- [x] Phase 1 — FastAPI backend with request validation
-- [x] Phase 2 — IP intelligence and CDN-fronting detection
-- [x] Phase 3 — Website metadata and security header analysis
-- [x] Phase 4 — Technology fingerprinting (web servers, frameworks, CMS, JS libraries)
-- [x] Phase 5 — Email security evaluation (SPF, DMARC, DKIM)
-- [x] Phase 6 — React frontend with responsive desktop & mobile UX, deployed
-- [ ] Phase 7 — MongoDB persistence and scan history
-- [ ] Phase 8 — Port scanning, threat intelligence APIs, and risk scoring
-- [ ] Phase 9 — Scan comparison and report export
+HostHunter uses an editorial, evidence-first interface rather than a
+terminal-style or cyberpunk visual language:
 
----
+- serif typography for major narrative moments;
+- sans-serif typography for interface hierarchy and explanation;
+- monospace typography for returned technical evidence;
+- restrained warm ivory, black, copper, and brass accents;
+- clear distinctions between returned, unavailable, unknown, and not-detected
+  states;
+- responsive layouts and reduced-motion support.
 
-## Author
+The product is designed to help users inspect public infrastructure without
+turning incomplete evidence into unsupported conclusions.
 
-**Biren Kumar**
+## License
 
-Final Year B.E. Computer Science and Design
-
-Sri Krishna College of Engineering and Technology
+See the repository for the current license and project terms.
