@@ -5,8 +5,7 @@ export function ThemeProvider({ children }) {
   const transitionTimer = useRef(0);
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("hh-theme");
-    if (saved === "light" || saved === "dark") return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return saved === "dark" ? "dark" : "light";
   });
 
   useLayoutEffect(() => {
