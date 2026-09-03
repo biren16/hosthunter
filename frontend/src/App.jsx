@@ -1,561 +1,115 @@
-import { useState, useMemo, useEffect } from 'react'
-import VerdictBanner from './components/VerdictBanner.jsx'
-import DnsSection    from './components/sections/DnsSection.jsx'
-import WhoisSection  from './components/sections/WhoisSection.jsx'
-import SslSection    from './components/sections/SslSection.jsx'
-import IpSection     from './components/sections/IpSection.jsx'
-import WebsiteSection       from './components/sections/WebsiteSection.jsx'
-import CdnSection            from './components/sections/CdnSection.jsx'
-import TechnologySection     from './components/sections/TechnologySection.jsx'
-import EmailSecuritySection  from './components/sections/EmailSecuritySection.jsx'
-import LandingPage   from './components/LandingPage.jsx'
-import StatusDot     from './components/ui/StatusDot.jsx'
-
-/* ─── Scan sweep line ────────────────────────────────────────────────────── */
-function ScanSweep({ visible }) {
-  if (!visible) return null
-  return (
-    <div
-      className="fixed inset-x-0 z-[200] pointer-events-none scan-sweep"
-      aria-hidden="true"
-      style={{
-        top: 0,
-        height: '1px',
-        background: 'linear-gradient(90deg, transparent 0%, rgba(62,214,196,0.45) 35%, rgba(62,214,196,0.65) 50%, rgba(62,214,196,0.45) 65%, transparent 100%)',
-      }}
-    />
-  )
-}
-
-/* ─── Search input — shared between hero and navbar ──────────────────────── */
-function SearchInput({ value, onChange, onSubmit, disabled, autoFocus, compact = false }) {
-  return (
-    <form onSubmit={onSubmit} className="w-full" role="search">
-      <div
-        className={`search-wrap relative flex items-center bg-surface border border-invert/[0.08] rounded-xl ${
-          compact ? 'px-3 py-1.5' : 'px-5 py-3.5'
-        }`}
-      >
-        {/* Search icon */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={compact ? 13 : 16}
-          height={compact ? 13 : 16}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-muted/50 flex-shrink-0"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-
-        <input
-          type="text"
-          value={value}
-          onChange={onChange}
-          placeholder="example.com"
-          className={`flex-1 bg-transparent border-none outline-none font-mono text-ink placeholder:text-muted/25 disabled:opacity-40 min-w-0 ${
-            compact ? 'text-xs mx-2.5' : 'text-base mx-4'
-          }`}
-          disabled={disabled}
-          spellCheck="false"
-          autoComplete="off"
-          autoFocus={autoFocus}
-          aria-label="Domain to scan"
-        />
-
-        <button
-          type="submit"
-          disabled={disabled || !value.trim()}
-          className={`flex-shrink-0 font-mono font-semibold text-bg bg-signal hover:bg-signal/85 active:bg-signal/75 disabled:opacity-25 disabled:cursor-not-allowed rounded-lg transition-all duration-150 ${
-            compact ? 'px-2.5 py-1 text-[11px] tracking-wide' : 'px-5 py-2 text-sm tracking-wide'
-          }`}
-        >
-          {disabled ? 'Scanning' : 'Scan'}
-        </button>
-      </div>
-    </form>
-  )
-}
-
-/* ─── Pending state (shown when tab is still loading) ────────────────────── */
-function PendingState() {
-  return (
-    <div className="flex items-center gap-3 py-2">
-      <span className="w-1.5 h-1.5 rounded-full bg-muted/40 dot-pulse" aria-hidden="true" />
-      <span className="font-mono text-sm text-muted/50">Awaiting response...</span>
-    </div>
-  )
-}
-
-/* ─── App ────────────────────────────────────────────────────────────────── */
-const getApiBaseUrl = () => {
-  const configuredUrl = import.meta.env.VITE_API_URL?.trim()
-
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, '')
-  }
-
-  if (import.meta.env.PROD) {
-    return 'https://hosthunter.onrender.com'
-  }
-
-  return ''
-}
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Navbar, Footer } from "./components/layout/Navbar";
+import { HeroSearch } from "./components/landing/HeroSearch";
+import { ScanningState } from "./components/scanning/ScanningState";
+import { Workspace } from "./components/results/Workspace";
+import { scanDomain } from "./lib/api";
+import { formatScanError } from "./lib/overviewInsights";
 
 export default function App() {
-  const [domain,    setDomain]    = useState('')
-  const [phase,     setPhase]     = useState('idle') // idle | scanning | done | error
-  const [result,    setResult]    = useState(null)
-  const [errorMsg,  setErrorMsg]  = useState(null)
-  const [activeTab, setActiveTab] = useState('dns')
+  const [phase, setPhase] = useState("landing"); // landing | scanning | results
+  const [domain, setDomain] = useState("");
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [lastDomain, setLastDomain] = useState("");
+  const requestIdRef = useRef(0);
 
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('hosthunter-theme')
-      if (saved === 'dark' || saved === 'light') return saved
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  useLayoutEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    return () => {
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (phase === "results" || (phase === "landing" && error)) {
+      const resetScroll = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      resetScroll();
+      const frame = requestAnimationFrame(resetScroll);
+      return () => cancelAnimationFrame(frame);
     }
-    return 'dark'
-  })
+    return undefined;
+  }, [error, phase]);
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    localStorage.setItem('hosthunter-theme', theme)
-  }, [theme])
+    if (!import.meta.env.DEV || phase !== "results" || !result) return;
+    performance.mark("hosthunter:T3-state-committed");
+    requestAnimationFrame(() => {
+      performance.mark("hosthunter:T5-result-visible");
+      const names = ["T0-submit", "T1-request-sent", "T2-response-received", "T3-state-committed", "T4-navigation", "T5-result-visible"];
+      const timings = Object.fromEntries(names.map((name) => [name, performance.getEntriesByName(`hosthunter:${name}`, "mark").at(-1)?.startTime ?? null]));
+      console.table(timings);
+    });
+  }, [phase, result]);
 
-  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-
-  const isScanning  = phase === 'scanning'
-  const isDone      = phase === 'done' && !!result
-  const showResults = isScanning || isDone
-
-  /* ── Scan handler ── */
-  const handleScan = async (e) => {
-    e.preventDefault()
-    const target = domain.trim()
-    if (!target) return
-
-    setPhase('scanning')
-    setErrorMsg(null)
-    setResult(null)
-    setActiveTab('dns')
-
+  const handleScan = async (normalized) => {
+    const requestId = ++requestIdRef.current;
+    if (import.meta.env.DEV) performance.getEntriesByType("mark").filter(({ name }) => name.startsWith("hosthunter:")).forEach(({ name }) => performance.clearMarks(name));
+    if (import.meta.env.DEV) performance.mark("hosthunter:T0-submit");
+    setDomain(normalized);
+    setLastDomain(normalized);
+    setPhase("scanning");
+    setError(null);
+    setResult(null);
     try {
-      const apiBaseUrl = getApiBaseUrl()
-      const endpoint = apiBaseUrl ? `${apiBaseUrl}/scan` : '/scan'
-      const res  = await fetch(endpoint, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ domain: target }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Scan failed')
-      setResult(data)
-      setPhase('done')
-    } catch (err) {
-      setErrorMsg(err.message)
-      setPhase('error')
+      const data = await scanDomain(normalized);
+      if (requestId !== requestIdRef.current) return;
+      setResult(data);
+      if (import.meta.env.DEV) performance.mark("hosthunter:T4-navigation");
+      setPhase("results");
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    } catch (e) {
+      if (requestId !== requestIdRef.current) return;
+      setError(formatScanError(e));
+      setPhase("landing");
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
-  }
+  };
 
-  /* ── Reset → idle ── */
-  const handleReset = () => {
-    setPhase('idle')
-    setDomain('')
-    setResult(null)
-    setErrorMsg(null)
-  }
-
-  /* ── Per-section statuses ── */
-  const status = (hasData, key) => {
-    if (isScanning)               return 'loading'
-    if (!result)                  return 'idle'
-    if (result?.errors?.[key])    return 'error'
-    if (hasData)                  return 'resolved'
-    return 'idle'
-  }
-
-  const dnsStatus   = status(!!result?.dns,   'dns')
-  const whoisStatus = status(!!result?.whois, 'whois')
-  const ipStatus    = status(!!result?.ip,    'ip')
-  let   sslStatus   = status(!!result?.ssl,   'ssl')
-  if (isDone && result?.ssl && !result.ssl.error) {
-    if (result.ssl.is_expired || result.ssl.days_until_expiry < 14) sslStatus = 'warning'
-  }
-
-  const websiteStatus       = status(!!result?.website,        'website')
-  const cdnStatus           = status(!!result?.cdn,            'cdn')
-  const technologyStatus    = status(!!result?.technology,     'technology')
-  const emailSecurityStatus = status(!!result?.email_security, 'email_security')
-
-  const errors = result?.errors ?? {}
-
-  /* ── Sidebar subtexts ── */
-  const dnsSubtext = useMemo(() => {
-    if (!result?.dns) return null
-    const n = Object.values(result.dns).reduce((s, a) => s + (Array.isArray(a) ? a.length : 0), 0)
-    return `${n} records`
-  }, [result?.dns])
-
-  const whoisSubtext = useMemo(() => {
-    if (!result?.whois) return null
-    const { registrar, organization } = result.whois
-    const hay = [organization, registrar].filter(Boolean).join(' ').toLowerCase()
-    const priv = ['redacted','privacy','protected','withheld','private','gdpr'].some(k => hay.includes(k))
-    if (priv) return 'Privacy-shielded'
-    const r = registrar?.split(',')[0]?.split(' ').slice(0, 3).join(' ')
-    return r || 'Registered'
-  }, [result?.whois])
-
-  const sslSubtext = useMemo(() => {
-    if (!result?.ssl || result.ssl.error) return null
-    if (result.ssl.is_expired) return 'Expired'
-    const d = result.ssl.days_until_expiry
-    return typeof d === 'number' ? `${d}d to expiry` : 'Valid'
-  }, [result?.ssl])
-
-  const ipSubtext = useMemo(() => {
-    if (!result?.ip?.ips) return null
-    const n = result.ip.ips.length
-    return `${n} address${n !== 1 ? 'es' : ''}`
-  }, [result?.ip])
-
-  const websiteSubtext = useMemo(() => {
-    if (!result?.website || result.website.error) return null
-    const h = result.website.security_headers
-    if (!h) return `${result.website.status_code || '—'}`
-    const enabled = Object.values(h).filter(v => v?.enabled).length
-    const total = Object.keys(h).length
-    return `${enabled}/${total} headers`
-  }, [result?.website])
-
-  const cdnSubtext = useMemo(() => {
-    if (!result?.cdn || result.cdn.error) return null
-    return result.cdn.detected ? result.cdn.provider || 'Detected' : 'Not detected'
-  }, [result?.cdn])
-
-  const technologySubtext = useMemo(() => {
-    if (!result?.technology || result.technology.error) return null
-    const t = result.technology
-    const parts = []
-    if (t.web_server?.name) parts.push(t.web_server.name)
-    if (t.frontend?.frameworks?.length) parts.push(...t.frontend.frameworks)
-    if (parts.length === 0) return 'None identified'
-    return parts.slice(0, 2).join(', ')
-  }, [result?.technology])
-
-  const emailSecuritySubtext = useMemo(() => {
-    if (!result?.email_security || result.email_security.error) return null
-    const es = result.email_security
-    const n = [es.spf?.enabled, es.dmarc?.enabled, es.dkim?.supported === true].filter(Boolean).length
-    return `${n}/3 configured`
-  }, [result?.email_security])
-
-  const tabs = [
-    { id: 'dns',            label: 'DNS Resolution',   shortLabel: 'DNS',       status: dnsStatus,            subtext: dnsSubtext },
-    { id: 'whois',          label: 'WHOIS Registry',   shortLabel: 'WHOIS',     status: whoisStatus,          subtext: whoisSubtext },
-    { id: 'ssl',            label: 'SSL / TLS',        shortLabel: 'SSL/TLS',   status: sslStatus,            subtext: sslSubtext },
-    { id: 'ip',             label: 'IP Intelligence',  shortLabel: 'IP Intel',  status: ipStatus,             subtext: ipSubtext },
-    { id: 'website',        label: 'Website',          shortLabel: 'Website',   status: websiteStatus,        subtext: websiteSubtext },
-    { id: 'cdn',            label: 'CDN Detection',    shortLabel: 'CDN',       status: cdnStatus,            subtext: cdnSubtext },
-    { id: 'technology',     label: 'Technology',        shortLabel: 'Tech',      status: technologyStatus,     subtext: technologySubtext },
-    { id: 'email_security', label: 'Email Security',   shortLabel: 'Email Sec', status: emailSecurityStatus,  subtext: emailSecuritySubtext },
-  ]
+  const handleHome = () => {
+    requestIdRef.current += 1;
+    setPhase("landing");
+    setResult(null);
+    setError(null);
+    setDomain("");
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  };
 
   return (
-    <div className="app-bg noise relative min-h-dvh bg-bg overflow-x-hidden">
-      <ScanSweep visible={isScanning} />
+    <div className={`min-h-screen flex flex-col ${phase === "scanning" || phase === "results" ? "bg-white" : "bg-paper"} dark:bg-stone-900`}>
+      <Navbar onHome={handleHome} showNewScan={phase === "results"} />
 
-      {/* ── Persistent navbar ─────────────────────────────────────────────── */}
-      <header
-        className="nav-glass fixed top-0 inset-x-0 z-50 flex items-center gap-3 sm:gap-4 px-4 sm:px-8 h-14 border-b border-invert/[0.05]"
-        role="banner"
-      >
-        {/* Wordmark — always clickable, always resets to idle */}
-        <button
-          onClick={handleReset}
-          className="wordmark-nav font-display font-bold text-ink hover:text-signal transition-colors duration-150 shrink-0"
-          aria-label="Return to homepage"
-        >
-          HOSTHUNTER
-        </button>
-
-        {/* Compact search — only visible in results view */}
-        {showResults && (
-          <div className="flex-1 max-w-xs sm:max-w-sm fade-up min-w-0">
-            <SearchInput
-              value={domain}
-              onChange={(e) => setDomain(e.target.value)}
-              onSubmit={handleScan}
-              disabled={isScanning}
-              compact
-            />
-          </div>
-        )}
-
-        <div className="ml-auto flex items-center gap-2 shrink-0">
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-invert/[0.08] bg-surface hover:bg-invert/[0.04] text-muted hover:text-ink font-mono text-[11px] transition-all duration-150 focus:outline-none"
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {theme === 'dark' ? (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
-                  <circle cx="12" cy="12" r="5"></circle>
-                  <line x1="12" y1="1" x2="12" y2="3"></line>
-                  <line x1="12" y1="21" x2="12" y2="23"></line>
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                  <line x1="1" y1="12" x2="3" y2="12"></line>
-                  <line x1="21" y1="12" x2="23" y2="12"></line>
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <span className="hidden sm:inline">Light</span>
-              </>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-                <span className="hidden sm:inline">Dark</span>
-              </>
-            )}
-          </button>
-        </div>
-      </header>
-
-      {/* ── Hero (idle + error state) ──────────────────────────────────────── */}
-      {!showResults && (
-        <main
-          className="relative z-10 flex flex-col items-center justify-center min-h-dvh px-6 pt-14"
-          aria-label="Domain search"
-        >
-          <div className="w-full max-w-lg flex flex-col items-center gap-9 text-center">
-
-            {/* Wordmark */}
-            <div className="flex flex-col items-center gap-3">
-              <button 
-                onClick={handleReset}
-                className="wordmark-hero font-display font-bold text-ink hover:text-signal transition-colors duration-150"
-              >
-                HOSTHUNTER
-              </button>
-              <p className="font-body text-muted text-base" style={{ letterSpacing: '0.015em' }}>
-                Domain intelligence. One query.
-              </p>
-            </div>
-
-            {/* Hero search input */}
-            <div className="w-full">
-              <SearchInput
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                onSubmit={handleScan}
-                disabled={isScanning}
-                autoFocus
-              />
-              {phase === 'error' && (
-                <p
-                  className="mt-3 font-mono text-sm text-alert flex items-center gap-2 justify-center"
-                  role="alert"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-alert shrink-0" aria-hidden="true" />
-                  {errorMsg}
-                </p>
-              )}
-            </div>
-
-            {/* Capability pills */}
-            <div className="flex items-center gap-2 flex-wrap justify-center" aria-hidden="true">
-              {['DNS', 'WHOIS', 'SSL', 'IP', 'Website', 'CDN', 'Technology', 'Email Security'].map(tag => (
-                <span
-                  key={tag}
-                  className="font-mono text-[10px] text-muted/40 tracking-widest uppercase px-3 py-1 rounded-full border border-invert/[0.05]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Below-fold capability section */}
-          <div className="w-full max-w-4xl mt-28 text-left">
-            <LandingPage />
-          </div>
-        </main>
-      )}
-
-      {/* ── Results view ──────────────────────────────────────────────────── */}
-      {showResults && (
-        <div className="relative z-10 flex flex-col sm:flex-row h-dvh pt-14 overflow-hidden" role="main">
-
-          {/* Mobile horizontal module nav (sm:hidden) */}
-          <nav
-            className="sm:hidden flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-4 py-2 bg-surface border-b border-invert/[0.05] shrink-0 no-scrollbar"
-            aria-label="Scan modules mobile"
-          >
-            {tabs.map((tab) => {
-              const isActive  = activeTab === tab.id
-              const isLoading = tab.status === 'loading'
-
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => !isLoading && setActiveTab(tab.id)}
-                  disabled={isLoading}
-                  className={`
-                    relative flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors shrink-0
-                    ${isActive ? 'bg-invert/[0.07] text-ink font-semibold' : 'text-muted/70 hover:text-ink bg-invert/[0.015]'}
-                    ${isLoading ? 'cursor-default' : 'cursor-pointer'}
-                  `}
-                  aria-selected={isActive}
-                  role="tab"
-                >
-                  <StatusDot status={tab.status} />
-                  <span>{tab.shortLabel}</span>
-                  {isActive && (
-                    <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-signal rounded-t" aria-hidden="true" />
-                  )}
-                </button>
-              )
-            })}
-          </nav>
-
-          {/* Desktop Sidebar (hidden on mobile, flex on sm+) */}
-          <aside
-            className="hidden sm:flex w-[200px] shrink-0 border-r border-invert/[0.05] bg-surface flex-col overflow-y-auto"
-            aria-label="Scan modules desktop"
-          >
-            <span className="font-body text-[9px] font-semibold tracking-[0.22em] text-muted/35 uppercase px-5 pt-5 pb-2">
-              Modules
-            </span>
-
-            <nav className="flex flex-col">
-              {tabs.map((tab) => {
-                const isActive  = activeTab === tab.id
-                const isLoading = tab.status === 'loading'
-                const isExpiring = tab.id === 'ssl' && result?.ssl?.days_until_expiry < 14
-
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => !isLoading && setActiveTab(tab.id)}
-                    disabled={isLoading}
-                    className={`
-                      relative w-full flex items-center gap-3 px-5 py-3 text-left transition-colors duration-100
-                      ${isActive   ? 'bg-invert/[0.035]' : 'hover:bg-invert/[0.018]'}
-                      ${isLoading  ? 'cursor-default'   : 'cursor-pointer'}
-                    `}
-                    aria-selected={isActive}
-                    role="tab"
-                  >
-                    {/* Active left-edge indicator */}
-                    {isActive && (
-                      <span
-                        className="absolute left-0 top-2 bottom-2 w-0.5 bg-signal rounded-r"
-                        aria-hidden="true"
-                      />
-                    )}
-
-                    <StatusDot status={tab.status} />
-
-                    <div className="flex flex-col min-w-0">
-                      <span
-                        className={`font-body text-[13px] font-medium leading-tight ${
-                          isActive ? 'text-ink' : 'text-muted/70'
-                        }`}
-                      >
-                        {tab.label}
-                      </span>
-                      {isLoading ? (
-                        <span className="font-mono text-[10px] text-signal/60 tracking-wide mt-0.5">
-                          Checking...
-                        </span>
-                      ) : tab.subtext ? (
-                        <span
-                          className={`font-mono text-[10px] truncate mt-0.5 ${
-                            isExpiring ? 'text-alert/70' : 'text-muted/40'
-                          }`}
-                        >
-                          {tab.subtext}
-                        </span>
-                      ) : null}
-                    </div>
-                  </button>
-                )
-              })}
-            </nav>
-          </aside>
-
-          {/* Content pane */}
-          <div className="flex-1 flex flex-col overflow-y-auto min-w-0">
-            {/* Verdict strip — at the top of the content pane */}
-            {isDone && (
-              <div className="fade-up border-b border-invert/[0.04] shrink-0">
-                <VerdictBanner result={result} />
+      {phase === "landing" && (
+        <>
+          {error && (
+            <div className="mx-auto w-full max-w-[1360px] px-5 sm:px-8 pt-5">
+              <div role="alert" className="max-w-[720px] border border-[#B98973] dark:border-[#704936] bg-[#EAD8CB]/70 dark:bg-[#2A1D16] px-4 py-4 text-[13px] leading-relaxed">
+                <div className="font-medium text-[#6F382B] dark:text-[#E6C4B4]">{error.title}</div>
+                <div className="mt-1 text-[#774638] dark:text-[#D4A995]">{error.detail}</div>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <button onClick={() => handleScan(lastDomain)} className="border border-[#B98973] dark:border-[#704936] px-3 py-1.5 text-[11px] tracking-micro uppercase text-[#6F382B] dark:text-[#E6C4B4] hover:bg-[#DFC7B8]/70 dark:hover:bg-[#3B281F] transition-colors">Retry scan</button>
+                  <span className="text-[12px] text-[#774638] dark:text-[#D4A995]">{error.action}</span>
+                </div>
               </div>
-            )}
-
-            {/* Active section */}
-            <div key={activeTab} className="flex-1 px-4 sm:px-10 py-6 sm:py-10 fade-up min-w-0">
-              {activeTab === 'dns' && (
-                dnsStatus === 'loading'
-                  ? <PendingState />
-                  : <DnsSection dns={result?.dns} error={errors.dns} />
-              )}
-              {activeTab === 'whois' && (
-                whoisStatus === 'loading'
-                  ? <PendingState />
-                  : <WhoisSection whois={result?.whois} error={errors.whois} />
-              )}
-              {activeTab === 'ssl' && (
-                sslStatus === 'loading'
-                  ? <PendingState />
-                  : <SslSection ssl={result?.ssl} error={errors.ssl} />
-              )}
-              {activeTab === 'ip' && (
-                ipStatus === 'loading'
-                  ? <PendingState />
-                  : <IpSection ip={result?.ip} error={errors.ip} />
-              )}
-              {activeTab === 'website' && (
-                websiteStatus === 'loading'
-                  ? <PendingState />
-                  : <WebsiteSection website={result?.website} error={errors.website} />
-              )}
-              {activeTab === 'cdn' && (
-                cdnStatus === 'loading'
-                  ? <PendingState />
-                  : <CdnSection cdn={result?.cdn} error={errors.cdn} />
-              )}
-              {activeTab === 'technology' && (
-                technologyStatus === 'loading'
-                  ? <PendingState />
-                  : <TechnologySection technology={result?.technology} error={errors.technology} website={result?.website} />
-              )}
-              {activeTab === 'email_security' && (
-                emailSecurityStatus === 'loading'
-                  ? <PendingState />
-                  : <EmailSecuritySection emailSecurity={result?.email_security} error={errors.email_security} />
-              )}
             </div>
-          </div>
-
-        </div>
+          )}
+          <HeroSearch onScan={handleScan} loading={false} />
+        </>
       )}
+
+      {phase === "scanning" && <ScanningState domain={domain} />}
+
+      {phase === "results" && result && (
+        <>
+          <Workspace data={result} domain={domain} onHome={handleHome} />
+        </>
+      )}
+
+      <div className="flex-1" />
+      {phase !== "scanning" && <Footer variant={phase === "results" ? "results" : "default"} />}
     </div>
-  )
+  );
 }
