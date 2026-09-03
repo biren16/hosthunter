@@ -140,7 +140,7 @@ export function HeroSearch({ onScan, loading }) {
     if (editing) inputRef.current?.focus();
   }, [editing]);
   return (
-    <main className="landing-shell motion-safe:animate-[page-enter_0.65s_cubic-bezier(0.22,1,0.36,1)]">
+    <main className="landing-shell">
       <section className="domain-hero mx-auto max-w-[1360px] px-5 sm:px-8">
         <div className="domain-hero__content">
           <div className="domain-hero__intro">
