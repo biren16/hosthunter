@@ -79,7 +79,7 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col ${phase === "scanning" || phase === "results" ? "bg-white" : "bg-paper"} dark:bg-stone-900`}>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-stone-900">
       <Navbar onHome={handleHome} showNewScan={phase === "results"} />
 
       {phase === "landing" && (
