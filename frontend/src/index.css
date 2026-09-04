@@ -655,6 +655,7 @@ html.theme-transitioning .domain-search__row::before {
   background: Highlight;
   color: HighlightText;
 }
+.dark .domain-search input { color: #F3EDE3; color-scheme: dark; }
 
 /* Resting state: the entry point reads as an editorial invitation, not a
    labelled form. The active state keeps its existing geometry below. */
@@ -877,12 +878,13 @@ html.theme-transitioning .domain-search__row::before {
 }
 .scan-transition__intro h1 span {
   display: inline-block;
+  margin-left: .2em;
   font-family: "JetBrains Mono", monospace;
-  font-size: .42em;
-  font-weight: 400;
-  letter-spacing: -.02em;
+  font-size: .36em;
+  font-weight: 500;
+  letter-spacing: -.015em;
   line-height: 1;
-  vertical-align: .16em;
+  vertical-align: .1em;
   overflow-wrap: anywhere;
 }
 .scan-transition__intro > p {
@@ -898,7 +900,7 @@ html.theme-transitioning .domain-search__row::before {
   align-items: center;
   gap: .45rem;
   width: fit-content;
-  margin-top: 2.1rem;
+  margin-top: 2.6rem;
   margin-right: auto;
   margin-left: auto;
   color: #000000;
@@ -1052,6 +1054,7 @@ html.theme-transitioning .domain-search__row::before {
 .dark .scan-transition__intro > p { color: #A89D92; }
 .dark .scan-transition__eyebrow { color: #CDBA9E; }
 .dark .scan-transition__eyebrow > span { background: #4A382B; }
+.dark .scan-transition__dots { color: #FFFFFF; }
 .dark .scan-transition__panel { border-color: #4A382B; background: #15110E; box-shadow: 0 18px 38px -42px rgba(0,0,0,.62); }
 .dark .scan-transition__panel header,
 .dark .scan-transition__panel footer { border-color: #3B2B22; }
