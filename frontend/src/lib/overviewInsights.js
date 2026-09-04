@@ -62,17 +62,36 @@ export function buildOverviewInsights(data = {}) {
 }
 
 export function formatScanError(error) {
+  if (error?.code === "SCAN_TIMEOUT") {
+    return {
+      title: "The investigation timed out",
+      detail: "The scan did not return a complete response within the available time.",
+    };
+  }
+
   if (error instanceof TypeError && error.message === "Failed to fetch") {
     return {
-      title: "The investigation could not start",
-      detail: "The scan service did not respond. No results were received.",
-      action: "Retry the scan or check that the API is available.",
+      title: "The scan service is unavailable",
+      detail: "HostHunter could not connect to the scan service. No results were received.",
+    };
+  }
+
+  if (error?.status >= 500) {
+    return {
+      title: "The scan service returned an error",
+      detail: "The service could not complete this investigation. No results were received.",
+    };
+  }
+
+  if (error?.status >= 400) {
+    return {
+      title: "The investigation request was rejected",
+      detail: error.message || "The scan service rejected this request.",
     };
   }
 
   return {
     title: "The investigation failed",
-    detail: error?.message || "The scan service returned an unexpected response.",
-    action: "Retry the scan. If the problem continues, check the API status.",
+    detail: "The scan service returned an unexpected response. No results were received.",
   };
 }

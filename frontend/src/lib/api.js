@@ -17,12 +17,16 @@ export async function scanDomain(domain) {
     if (import.meta.env.DEV) performance.mark("hosthunter:T2-response-received");
     if (!res.ok) {
       const msg = data?.detail?.[0]?.msg || data?.detail || data?.message || `Scan failed (${res.status})`;
-      throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+      const requestError = new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+      requestError.status = res.status;
+      throw requestError;
     }
     return data;
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error("The scan timed out. Please try again.");
+      const timeoutError = new Error("The scan timed out. Please try again.");
+      timeoutError.code = "SCAN_TIMEOUT";
+      throw timeoutError;
     }
     throw error;
   } finally {

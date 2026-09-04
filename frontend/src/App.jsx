@@ -10,7 +10,7 @@ export default function App() {
   const [phase, setPhase] = useState("landing"); // landing | scanning | results
   const [domain, setDomain] = useState("");
   const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [scanError, setScanError] = useState(null);
   const [lastDomain, setLastDomain] = useState("");
   const requestIdRef = useRef(0);
 
@@ -25,14 +25,14 @@ export default function App() {
   }, []);
 
   useLayoutEffect(() => {
-    if (phase === "results" || (phase === "landing" && error)) {
+    if (phase === "results") {
       const resetScroll = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       resetScroll();
       const frame = requestAnimationFrame(resetScroll);
       return () => cancelAnimationFrame(frame);
     }
     return undefined;
-  }, [error, phase]);
+  }, [phase]);
 
   useEffect(() => {
     if (!import.meta.env.DEV || phase !== "results" || !result) return;
@@ -52,7 +52,7 @@ export default function App() {
     setDomain(normalized);
     setLastDomain(normalized);
     setPhase("scanning");
-    setError(null);
+    setScanError(null);
     setResult(null);
     try {
       const data = await scanDomain(normalized);
@@ -63,8 +63,8 @@ export default function App() {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     } catch (e) {
       if (requestId !== requestIdRef.current) return;
-      setError(formatScanError(e));
-      setPhase("landing");
+      setScanError(formatScanError(e));
+      setPhase("scanning");
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
   };
@@ -73,7 +73,7 @@ export default function App() {
     requestIdRef.current += 1;
     setPhase("landing");
     setResult(null);
-    setError(null);
+    setScanError(null);
     setDomain("");
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   };
@@ -84,23 +84,11 @@ export default function App() {
 
       {phase === "landing" && (
         <>
-          {error && (
-            <div className="mx-auto w-full max-w-[1360px] px-5 sm:px-8 pt-5">
-              <div role="alert" className="max-w-[720px] border border-[#B98973] dark:border-[#704936] bg-[#EAD8CB]/70 dark:bg-[#2A1D16] px-4 py-4 text-[13px] leading-relaxed">
-                <div className="font-medium text-[#6F382B] dark:text-[#E6C4B4]">{error.title}</div>
-                <div className="mt-1 text-[#774638] dark:text-[#D4A995]">{error.detail}</div>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <button onClick={() => handleScan(lastDomain)} className="border border-[#B98973] dark:border-[#704936] px-3 py-1.5 text-[11px] tracking-micro uppercase text-[#6F382B] dark:text-[#E6C4B4] hover:bg-[#DFC7B8]/70 dark:hover:bg-[#3B281F] transition-colors">Retry scan</button>
-                  <span className="text-[12px] text-[#774638] dark:text-[#D4A995]">{error.action}</span>
-                </div>
-              </div>
-            </div>
-          )}
           <HeroSearch onScan={handleScan} loading={false} />
         </>
       )}
 
-      {phase === "scanning" && <ScanningState domain={domain} />}
+      {phase === "scanning" && <ScanningState domain={domain} error={scanError} onRetry={() => handleScan(lastDomain)} onHome={handleHome} />}
 
       {phase === "results" && result && (
         <>

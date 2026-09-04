@@ -40,8 +40,17 @@ test("buildOverviewInsights preserves uncertainty when modules are incomplete", 
 
 test("formatScanError gives users a recovery action", () => {
   assert.deepEqual(formatScanError(new TypeError("Failed to fetch")), {
-    title: "The investigation could not start",
-    detail: "The scan service did not respond. No results were received.",
-    action: "Retry the scan or check that the API is available.",
+    title: "The scan service is unavailable",
+    detail: "HostHunter could not connect to the scan service. No results were received.",
   });
+});
+
+test("formatScanError distinguishes a timed out investigation", () => {
+  assert.match(formatScanError({ code: "SCAN_TIMEOUT" }).title, /timed out/i);
+});
+
+test("formatScanError keeps server failures actionable without leaking raw details", () => {
+  const formatted = formatScanError({ status: 503, message: "upstream detail" });
+  assert.equal(formatted.title, "The scan service returned an error");
+  assert.doesNotMatch(`${formatted.detail} ${formatted.action}`, /upstream detail/i);
 });
