@@ -52,6 +52,7 @@ HostHunter/
 ├── backend/
 │   ├── main.py
 │   ├── requirements.txt
+│   ├── .env.example          # Safe template for optional backend variables
 │   ├── data/                  # CDN/IP range data
 │   ├── modules/               # Eight passive intelligence modules
 │   └── utils/                 # Shared network helpers
@@ -69,11 +70,13 @@ HostHunter/
 │   ├── package.json
 │   ├── vite.config.js
 │   └── tailwind.config.js
-├── frontend-legacy/            # Earlier frontend, retained for reference
 ├── DESIGN_SYSTEM.md
 ├── PRODUCT.md
 ├── DECISIONS.md
 ├── AGENTS.md
+├── ROADMAP.md
+├── docs/
+│   └── ARCHITECTURE.md
 └── README.md
 ```
 
@@ -90,7 +93,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Optional: enables IP metadata enrichment where configured
-printf 'IPINFO_TOKEN=your_token_here\n' > .env
+cp .env.example .env
+# Edit .env and add IPINFO_TOKEN only if enrichment is needed.
 
 uvicorn main:app --reload
 ```
@@ -160,13 +164,12 @@ Run these from `frontend/` before opening a change:
 
 ```bash
 npm run lint
+npm test
 npm run build
 ```
 
-The repository currently has focused frontend test files under
-`frontend/src/lib/`, but `package.json` does not yet expose a `test` script.
-Backend automated tests are not yet configured. Do not claim either suite ran
-unless the relevant command exists and was actually executed.
+The frontend test command runs the focused tests under `frontend/src/lib/`.
+Backend automated tests are not yet configured.
 
 Backend changes should preserve the API contract, partial-result behavior,
 and explicit uncertainty semantics. Frontend changes should follow
