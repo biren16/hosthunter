@@ -72,7 +72,8 @@ HostHunter/
 ├── frontend-legacy/            # Earlier frontend, retained for reference
 ├── DESIGN_SYSTEM.md
 ├── PRODUCT.md
-├── UI_PATTERNS.md
+├── DECISIONS.md
+├── AGENTS.md
 └── README.md
 ```
 
@@ -107,7 +108,7 @@ npm install
 npm run dev
 ```
 
-The Vite development server runs on port `5175`. By default, the frontend
+The Vite development server runs on port `5173`. By default, the frontend
 calls `http://127.0.0.1:8000`; set `VITE_API_URL` in `frontend/.env.local` to
 use another API endpoint:
 
@@ -162,9 +163,18 @@ npm run lint
 npm run build
 ```
 
+The repository currently has focused frontend test files under
+`frontend/src/lib/`, but `package.json` does not yet expose a `test` script.
+Backend automated tests are not yet configured. Do not claim either suite ran
+unless the relevant command exists and was actually executed.
+
 Backend changes should preserve the API contract, partial-result behavior,
 and explicit uncertainty semantics. Frontend changes should follow
 `DESIGN_SYSTEM.md` and keep animation independent from the data lifecycle.
+
+For project boundaries and the current `/scan` flow, see
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Product and design guidance
+live in `PRODUCT.md` and `DESIGN_SYSTEM.md` respectively.
 
 ## Design principles
 

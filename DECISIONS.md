@@ -48,8 +48,8 @@
 
 ---
 
-## 7. No Arbitrary Security Score
+## 7. No Synthesized Verdict or Security Score
 
-**Decision:** The result interface uses a synthesized verdict rather than assigning a numerical security score.
+**Decision:** The result interface does not issue a synthesized verdict or numerical security score.
 
-**Why:** The collected reconnaissance data provides observations about infrastructure and configuration, but does not by itself justify a precise overall security rating.
+**Why:** The collected reconnaissance data provides observations about infrastructure and configuration, but does not by itself justify a precise overall security rating or conclusion. The overview orients the user to returned evidence and limitations without replacing expert judgment.
