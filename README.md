@@ -10,7 +10,7 @@ returned record with partial results and uncertainty kept explicit.
 
 ## What HostHunter reads
 
-Each investigation requests eight independent sources of public domain
+Each investigation requests nine independent sources of public domain
 intelligence:
 
 1. **DNS** — A, AAAA, MX, NS, and TXT records, delegation, and mail topology.
@@ -27,6 +27,8 @@ intelligence:
 7. **CDN** — Resolved-address and provider signals for known CDN infrastructure.
 8. **Email security** — Published SPF and DMARC records, plus DKIM discovery
    through supported common selectors.
+9. **Subdomains** — Hostnames observed in public certificate-transparency
+   records, with wildcard and certificate-validity evidence.
 
 HostHunter does not exploit, intrude on, or actively probe a target. A failed
 lookup does not erase successful module results; unavailable, unknown, and
@@ -38,7 +40,7 @@ The application follows a simple flow:
 
 1. Enter a domain in the landing-page investigation control.
 2. The backend validates and normalizes the domain.
-3. The eight modules collect their available public evidence independently.
+3. The nine modules collect their available public evidence independently.
 4. The frontend presents the normalized response, module details, provenance,
    and any module-level errors.
 
@@ -54,7 +56,7 @@ HostHunter/
 │   ├── requirements.txt
 │   ├── .env.example          # Safe template for optional backend variables
 │   ├── data/                  # CDN/IP range data
-│   ├── modules/               # Eight passive intelligence modules
+│   ├── modules/               # Nine passive intelligence modules
 │   └── utils/                 # Shared network helpers
 ├── frontend/                  # Current React application
 │   ├── src/
@@ -134,8 +136,9 @@ Request:
 
 The response contains the normalized domain, `domainexists`, and results for
 `dns`, `whois`, `ssl`, `ip`, `website`, `technology`, `cdn`, and
-`email_security`. When one or more modules fail, an `errors` object identifies
-those module-level failures while successful results remain in the response.
+`email_security`, plus certificate-observed `subdomains` and backend-generated
+`analysis`. When one or more modules fail, an `errors` object identifies those
+module-level failures while successful results remain in the response.
 
 Example shape:
 
@@ -151,9 +154,21 @@ Example shape:
   "technology": {},
   "cdn": {},
   "email_security": {},
+  "subdomains": {},
+  "analysis": {
+    "version": "1",
+    "observations": [],
+    "unavailable": []
+  },
   "errors": {}
 }
 ```
+
+Subdomain results are sourced from Cert Spotter's certificate-transparency
+index. They describe certificate-observed names and do not prove that a
+hostname currently resolves, is reachable, or remains controlled by the
+domain owner. `CERTSPOTTER_API_KEY` is optional for local evaluation; provider
+rate limits and failures remain explicit in `subdomains` and `errors`.
 
 Individual module fields vary with the evidence returned by the source. The
 backend is the source of truth for the response contract.

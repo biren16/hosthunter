@@ -11,6 +11,8 @@ from modules.website_module import website_lookup
 from modules.technology_module import technology_lookup
 from modules.cdn_module import cdn_lookup
 from modules.email_security_module import email_security_lookup
+from modules.subdomain_module import subdomain_lookup
+from analysis.engine import build_analysis
 
 
 import ipaddress
@@ -127,6 +129,7 @@ def scan(request : ScanRequest):
     technology_result = technology_lookup(domain)
     cdn_result = cdn_lookup(domain)
     email_security_result = email_security_lookup(domain)
+    subdomains_result = subdomain_lookup(domain)
 
     errors = {
         # usin get coz we get only if error exists
@@ -139,6 +142,7 @@ def scan(request : ScanRequest):
         "technology": technology_result.get("error"),
         "cdn": cdn_result.get("error"),
         "email_security": email_security_result.get("error"),
+        "subdomains": subdomains_result.get("error"),
 
     }
 
@@ -161,11 +165,21 @@ def scan(request : ScanRequest):
         "technology": technology_result,
         "cdn": cdn_result,
         "email_security": email_security_result,
+        "subdomains": subdomains_result,
     }
 
     # if theres smth in errors show em
     if errors:
         result["errors"] = errors
 
-    return result
+    try:
+        result["analysis"] = build_analysis(result)
+    except Exception:
+        result["analysis"] = {
+            "version": "1",
+            "observations": [],
+            "unavailable": [],
+        }
+        result.setdefault("errors", {})["analysis"] = "Analysis layer unavailable"
 
+    return result

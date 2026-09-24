@@ -1,4 +1,4 @@
-import { buildOverviewInsights } from "../../lib/overviewInsights";
+import { buildAnalysisInsights, buildOverviewInsights } from "../../lib/overviewInsights";
 import { ResultsModuleShell } from "./ResultsModuleShell";
 
 function formatValue(value) {
@@ -20,7 +20,10 @@ export function Overview({ data, onNavigate }) {
   const website = data.website || {};
   const tech = data.technology || {};
   const cdn = data.cdn || {};
-  const insights = buildOverviewInsights(data);
+  const analysis = buildAnalysisInsights(data);
+  const insights = analysis?.observations || buildOverviewInsights(data);
+  const unavailableAnalysis = analysis?.unavailable || [];
+  const subdomains = data.subdomains || {};
   const dnsCount = ["A", "AAAA", "MX", "NS", "TXT"].reduce((total, key) => total + (Array.isArray(dns[key]) ? dns[key].length : 0), 0);
   const ipCount = ip.ips?.length || (ip.address ? 1 : 0);
   const technologyCount = [tech.web_server?.name, tech.edge?.name, tech.backend?.framework, tech.cms?.name, ...(tech.frontend?.frameworks || []), ...(tech.javascript_libraries || tech.javascriptLibraries || [])].filter(Boolean).length;
@@ -34,12 +37,26 @@ export function Overview({ data, onNavigate }) {
             {insights.map((insight, index) => (
               <article className="overview-observation" key={insight.title}>
                 <span className="overview-observation__index">{String(index + 1).padStart(2, "0")}</span>
-                <div className="overview-observation__content"><h3>{insight.title}</h3><p>{insight.detail}</p></div>
+                <div className="overview-observation__content">
+                  <h3>{insight.title}</h3>
+                  <p>{insight.detail}</p>
+                  {insight.limitations?.length > 0 && <p className="overview-observation__limitation">Limit: {insight.limitations.join(" ")}</p>}
+                </div>
                 {insight.focus && <button type="button" onClick={() => onNavigate(insight.focus)} className="overview-observation__action">{insight.focus === "email" ? "Email Security" : insight.focus === "tls" ? "SSL / TLS" : insight.focus.toUpperCase()} <span aria-hidden="true">↗</span></button>}
               </article>
             ))}
           </div>
         </section>
+
+        {unavailableAnalysis.length > 0 && (
+          <section className="overview-availability" aria-labelledby="overview-analysis-availability-title">
+            <div className="overview-section-label" id="overview-analysis-availability-title">Correlation coverage</div>
+            <p className="overview-availability__note">Some relationships could not be evaluated from the returned evidence.</p>
+            <div className="overview-availability__list">
+              {unavailableAnalysis.map((item) => <div className="overview-availability__row" key={item.id}><span>{item.id}</span><strong className="is-unavailable">{item.reason}</strong></div>)}
+            </div>
+          </section>
+        )}
 
         <section className="overview-record" aria-labelledby="overview-record-title">
           <div className="overview-section-label" id="overview-record-title">Record summary</div>
@@ -50,6 +67,7 @@ export function Overview({ data, onNavigate }) {
             <RecordRow label="HTTP status" value={website.status_code} mono />
             <RecordRow label="Technology signals" value={technologyCount} mono />
             <RecordRow label="CDN state" value={cdn.detected === true ? "Detected" : cdn.detected === false ? "No supported match" : "Unknown"} />
+            <RecordRow label="Certificate-observed names" value={subdomains.returned_count} mono />
             {typeof ssl.days_until_expiry === "number" && <RecordRow label="TLS expiry" value={`${ssl.days_until_expiry} days`} mono />}
           </div>
         </section>

@@ -5,6 +5,33 @@ function countRecords(records = {}) {
   );
 }
 
+const ANALYSIS_FOCUS = {
+  dns: "dns",
+  subdomains: "subdomains",
+  website: "website",
+  ssl: "tls",
+  ip: "ip",
+  technology: "technology",
+  cdn: "cdn",
+  email_security: "email",
+};
+
+export function buildAnalysisInsights(data = {}) {
+  const analysis = data.analysis;
+  if (!analysis || !Array.isArray(analysis.observations) || !Array.isArray(analysis.unavailable)) {
+    return null;
+  }
+
+  return {
+    observations: analysis.observations.map((item) => ({
+      ...item,
+      detail: item.summary,
+      focus: (item.related_modules || []).map((module) => ANALYSIS_FOCUS[module]).find(Boolean),
+    })),
+    unavailable: analysis.unavailable,
+  };
+}
+
 export function buildOverviewInsights(data = {}) {
   const dns = data.dns || {};
   const ip = data.ip || {};

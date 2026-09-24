@@ -1,4 +1,4 @@
-export const MODULE_ORDER = ["overview", "dns", "whois", "tls", "ip", "website", "technology", "cdn", "email"];
+export const MODULE_ORDER = ["overview", "dns", "subdomains", "whois", "tls", "ip", "website", "technology", "cdn", "email"];
 
 export function getModuleDirection(previousId, nextId) {
   const previousIndex = MODULE_ORDER.indexOf(previousId);

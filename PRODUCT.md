@@ -27,7 +27,7 @@ The Overview is the orientation layer. It is not a second raw-data dump and must
 
 ## Initial capability surface
 
-The scan is organized into eight modules:
+The scan is organized into nine modules:
 
 - DNS
 - WHOIS
@@ -37,6 +37,7 @@ The scan is organized into eight modules:
 - Technology
 - CDN
 - Email Security
+- Subdomains, using passive certificate-transparency observations
 
 Each module may succeed, fail, or return partial evidence independently. A partial scan is still useful and must remain visible as partial rather than being flattened into success or failure.
 
@@ -46,6 +47,8 @@ Each module may succeed, fail, or return partial evidence independently. A parti
 - An observation is not automatically a risk finding.
 - **Unknown ≠ insecure.** Missing data can reflect unavailable coverage, privacy controls, DNS behavior, rate limits, or a failed module.
 - DKIM non-detection through common selectors is not proof that DKIM is absent.
+- Certificate-transparency hostname observations are not proof of current DNS
+  resolution, reachability, or ownership.
 - Never invent severity, confidence, risk scores, or verdicts without a defined, supported basis.
 - Keep evidence distinct from interpretation, and label interpretation as such.
 - Preserve uncertainty, provenance, timing, and module errors.
@@ -60,7 +63,7 @@ The results experience should make the next question obvious: what was observed,
 
 ## Operating Context
 
-The scan is one investigation across DNS, WHOIS, SSL/TLS, IP intelligence, Website, Technology, CDN, and Email Security. Users begin with orientation and then inspect each module’s supporting evidence and raw response details.
+The scan is one investigation across DNS, WHOIS, SSL/TLS, IP intelligence, Website, Technology, CDN, Email Security, and Subdomains. Users begin with orientation and then inspect each module’s supporting evidence and raw response details.
 
 ## Users
 
@@ -78,7 +81,7 @@ Plain language is the default. Technical terms may appear when useful, but shoul
 
 ## Evidence on Hand
 
-- The repository contains the eight-module `/scan` response contract and frontend implementation.
+- The repository contains the nine-module `/scan` response contract and frontend implementation.
 - No customer testimonials, performance benchmarks, or external endorsements are available; do not fabricate them.
 
 ## Product Principles

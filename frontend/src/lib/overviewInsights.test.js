@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildOverviewInsights, formatScanError } from "./overviewInsights.js";
+import { buildAnalysisInsights, buildOverviewInsights, formatScanError } from "./overviewInsights.js";
 
 test("buildOverviewInsights explains observed infrastructure without inventing risk", () => {
   const insights = buildOverviewInsights({
@@ -36,6 +36,35 @@ test("buildOverviewInsights preserves uncertainty when modules are incomplete", 
   });
 
   assert.ok(insights.some((item) => /unknown|unavailable|partial/i.test(`${item.title} ${item.detail}`)));
+});
+
+test("buildAnalysisInsights renders backend observations and unavailable rules", () => {
+  const insights = buildAnalysisInsights({
+    analysis: {
+      version: "1",
+      observations: [
+        {
+          id: "web-tls-delivery",
+          title: "Web and TLS delivery signals",
+          summary: "The website response used the HTTPS scheme.",
+          related_modules: ["website", "ssl"],
+          evidence_refs: ["website.scheme"],
+          limitations: ["This is an observation."],
+        },
+      ],
+      unavailable: [
+        {
+          id: "mail-configuration",
+          related_modules: ["dns", "email_security"],
+          reason: "Email evidence was unavailable.",
+        },
+      ],
+    },
+  });
+
+  assert.equal(insights.observations[0].title, "Web and TLS delivery signals");
+  assert.equal(insights.observations[0].focus, "website");
+  assert.equal(insights.unavailable[0].reason, "Email evidence was unavailable.");
 });
 
 test("formatScanError gives users a recovery action", () => {

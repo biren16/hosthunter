@@ -4,11 +4,13 @@ import { getModuleDirection } from "./moduleNavigation.js";
 
 test("returns forward when the next module follows the current module", () => {
   assert.equal(getModuleDirection("overview", "dns"), "forward");
+  assert.equal(getModuleDirection("dns", "subdomains"), "forward");
   assert.equal(getModuleDirection("website", "email"), "forward");
 });
 
 test("returns backward when the next module precedes the current module", () => {
   assert.equal(getModuleDirection("email", "technology"), "backward");
+  assert.equal(getModuleDirection("subdomains", "dns"), "backward");
   assert.equal(getModuleDirection("tls", "overview"), "backward");
 });
 

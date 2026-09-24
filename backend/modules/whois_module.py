@@ -9,22 +9,22 @@ def whois_lookup(domain):
 
         whois_data = whois.whois(domain)
 
-        domain_name = whois_data["domain_name"]
+        domain_name = whois_data.get("domain_name")
         
         result["domain_name"] = domain_name[0] if isinstance(domain_name, list) else domain_name
-        result["registrar"] = whois_data["registrar"]
-        result["organization"] = whois_data["org"]
-        result["country"] = whois_data["country"]
+        result["registrar"] = whois_data.get("registrar")
+        result["organization"] = whois_data.get("org")
+        result["country"] = whois_data.get("country")
 
-        result["creation_date"] = normalize_date(whois_data["creation_date"])
-        result["updated_date"] = normalize_date(whois_data["updated_date"])
-        result["expiration_date"] = normalize_date(whois_data["expiration_date"])
+        result["creation_date"] = normalize_date(whois_data.get("creation_date"))
+        result["updated_date"] = normalize_date(whois_data.get("updated_date"))
+        result["expiration_date"] = normalize_date(whois_data.get("expiration_date"))
 
-        result["name_servers"] = normalize_status(whois_data["name_servers"])
-        result["status"] = normalize_status(whois_data["status"])
-        result["dnssec"] = whois_data["dnssec"]
+        result["name_servers"] = normalize_status(whois_data.get("name_servers"))
+        result["status"] = normalize_status(whois_data.get("status"))
+        result["dnssec"] = whois_data.get("dnssec")
 
-    except whois.parser.PywhoisError:
+    except whois.WhoisError:
         result["error"] = "WHOIS lookup failed"
     except Exception:
         result["error"] = "Unable to perform WHOIS lookup"

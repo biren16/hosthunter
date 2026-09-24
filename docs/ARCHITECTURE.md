@@ -14,19 +14,22 @@ validation, public-data collection, and the `/scan` response contract.
 3. The backend normalizes and validates the domain, rejecting malformed input,
    credentials, IP literals, and invalid labels.
 4. `backend/main.py` collects DNS, WHOIS, SSL/TLS, IP, Website, Technology,
-   CDN, and Email Security evidence.
+   CDN, Email Security, and certificate-transparency Subdomain evidence.
 5. The backend returns one normalized record. Successful module data remains
    present when another module returns an error; module failures are collected
    in the optional `errors` object.
-6. The frontend commits the response and renders the results workspace without
+6. The backend derives deterministic, evidence-referenced analysis from the
+   returned record without making additional network calls.
+7. The frontend commits the response and renders the results workspace without
    waiting for decorative animation.
 
 ## Ownership and invariants
 
 - `backend/main.py` is the source of truth for the `/scan` schema.
 - `backend/modules/` contains the independent evidence collectors. They are
-  currently called sequentially by the route handler; do not describe them as
-  concurrent unless code and measurement establish that behavior.
+  currently called sequentially by the route handler.
+- `backend/analysis/engine.py` owns the deterministic cross-module analysis
+  rules and must not perform network I/O.
 - `frontend/src/lib/api.js` owns request transport and its client timeout.
 - `frontend/src/App.jsx` owns landing, scanning, and results phase changes.
 - `frontend/src/components/results/` translates returned data into orientation,
@@ -39,6 +42,11 @@ An unavailable lookup, missing field, unsupported detector, and unknown value
 are different states. Preserve module-level errors and partial results. Unknown
 does not mean insecure, and a result record does not support a synthesized
 security score or verdict.
+
+Certificate-transparency subdomain results are evidence of names present in
+the provider's certificate index. They do not establish current resolution,
+reachability, or ownership. Analysis observations must cite returned fields
+and include their limitations.
 
 ## Related documents
 

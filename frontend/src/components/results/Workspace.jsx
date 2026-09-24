@@ -8,11 +8,13 @@ import { WebsiteView } from "./modules/WebsiteCard";
 import { TechView } from "./modules/TechCard";
 import { CdnView } from "./modules/CdnCard";
 import { EmailView } from "./modules/EmailCard";
+import { SubdomainView } from "./modules/SubdomainCard";
 import { getModuleDirection } from "../../lib/moduleNavigation";
 
 const NAV = [
   { id: "overview", label: "Overview" },
   { id: "dns", label: "DNS" },
+  { id: "subdomains", label: "Subdomains" },
   { id: "whois", label: "WHOIS" },
   { id: "tls", label: "SSL / TLS" },
   { id: "ip", label: "IP Intelligence" },
@@ -88,6 +90,7 @@ export function Workspace({ data, domain, onHome }) {
           <div id="active-evidence-module" key={active} data-direction={direction} role="region" aria-live="polite" aria-atomic="false" className="module-viewport w-full min-w-0">
             {active === "overview" && <Overview data={data} domain={domain} onNavigate={navigateTo} />}
             {active === "dns" && <DnsView dnsPayload={data.dns} domainExists={data.domainexists} error={errors.dns} />}
+            {active === "subdomains" && <SubdomainView data={data.subdomains} error={errors.subdomains} />}
             {active === "whois" && <WhoisView data={data.whois || {}} error={errors.whois} />}
             {active === "tls" && <SslView data={data.ssl || {}} error={errors.ssl} />}
             {active === "ip" && <IpView data={data.ip || {}} error={errors.ip} />}
