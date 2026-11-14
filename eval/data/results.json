@@ -1,0 +1,847 @@
+{
+  "dataset": {
+    "tranco_list_id": "Y897G",
+    "seed": "2026",
+    "domains": 200,
+    "strata": {
+      "top": 60,
+      "mid": 60,
+      "tail": 60,
+      "idn": 10,
+      "nonexistent": 10
+    }
+  },
+  "runs": {
+    "baseline": {
+      "scans": 200,
+      "first": "2026-11-14T11:51:14.198522+00:00",
+      "last": "2026-11-14T12:42:39.739939+00:00",
+      "backend": "v1-baseline",
+      "dns64_scans": 14,
+      "dns64_window": [
+        "2026-11-14T11:51:22.749561+00:00",
+        "2026-11-14T11:57:34.055880+00:00"
+      ]
+    },
+    "fixed-r1": {
+      "scans": 200,
+      "first": "2026-11-14T11:51:14.211110+00:00",
+      "last": "2026-11-14T12:26:20.895708+00:00",
+      "backend": "v1-baseline-3-gfa6a7f4",
+      "dns64_scans": 21,
+      "dns64_window": [
+        "2026-11-14T11:51:21.417386+00:00",
+        "2026-11-14T11:57:05.457863+00:00"
+      ]
+    },
+    "fixed-r2": {
+      "scans": 200,
+      "first": "2026-11-14T12:26:27.277693+00:00",
+      "last": "2026-11-14T13:00:19.794694+00:00",
+      "backend": "v1-baseline-3-gfa6a7f4",
+      "dns64_scans": 0,
+      "dns64_window": null
+    }
+  },
+  "table_a": {
+    "domains": 200,
+    "paired": 173,
+    "before": {
+      "crashed": 27,
+      "hung": 0,
+      "over_30s": 3,
+      "lost": 30,
+      "p50": 8.8786,
+      "p95": 18.2533,
+      "max": 65.2628,
+      "mean": 10.07781965317919,
+      "failed_pct": {
+        "dns": 1.7341040462427746,
+        "whois": 10.982658959537572,
+        "ssl": 23.121387283236995,
+        "ip": 22.54335260115607,
+        "website": 22.54335260115607,
+        "technology": 22.54335260115607,
+        "cdn": 22.54335260115607,
+        "email_security": 0.0,
+        "subdomains": 99.42196531791907
+      }
+    },
+    "after": {
+      "crashed": 0,
+      "hung": 0,
+      "over_30s": 0,
+      "lost": 0,
+      "p50": 3.0351,
+      "p95": 11.2382,
+      "max": 20.0031,
+      "mean": 4.212447976878613,
+      "failed_pct": {
+        "dns": 1.7341040462427746,
+        "whois": 10.982658959537572,
+        "ssl": 22.54335260115607,
+        "ip": 23.121387283236995,
+        "website": 23.121387283236995,
+        "technology": 23.121387283236995,
+        "cdn": 22.54335260115607,
+        "email_security": 8.092485549132949,
+        "subdomains": 95.95375722543352
+      }
+    },
+    "faster_after": 168,
+    "by_stratum": {
+      "idn": {
+        "n": 7,
+        "before_p50": 7.1793,
+        "before_p95": 65.2628,
+        "after_p50": 3.6064,
+        "after_p95": 12.2161,
+        "before_lost": 4,
+        "after_lost": 0
+      },
+      "mid": {
+        "n": 50,
+        "before_p50": 7.5186,
+        "before_p95": 19.3932,
+        "after_p50": 2.9332,
+        "after_p95": 11.5,
+        "before_lost": 10,
+        "after_lost": 0
+      },
+      "nonexistent": {
+        "n": 10,
+        "before_p50": 2.5016,
+        "before_p95": 3.3945,
+        "after_p50": 0.9065,
+        "after_p95": 0.9967,
+        "before_lost": 0,
+        "after_lost": 0
+      },
+      "tail": {
+        "n": 53,
+        "before_p50": 9.2951,
+        "before_p95": 15.5248,
+        "after_p50": 3.1704,
+        "after_p95": 8.5026,
+        "before_lost": 7,
+        "after_lost": 0
+      },
+      "top": {
+        "n": 53,
+        "before_p50": 10.1121,
+        "before_p95": 18.5591,
+        "after_p50": 3.3551,
+        "after_p95": 11.3088,
+        "before_lost": 9,
+        "after_lost": 0
+      }
+    },
+    "crash_reasons": {
+      "AttributeError": 27
+    },
+    "deadline_hits_after": {
+      "dns": 0,
+      "whois": 0,
+      "ssl": 3,
+      "ip": 2,
+      "website": 3,
+      "technology": 3,
+      "cdn": 3,
+      "email_security": 0,
+      "subdomains": 0
+    },
+    "scans_with_deadline_hit_after": 5,
+    "latencies": {
+      "before": [
+        7.0483,
+        4.5988,
+        13.7255,
+        51.2782,
+        6.0375,
+        3.8671,
+        12.1914,
+        9.0984,
+        14.2924,
+        5.2827,
+        5.0839,
+        18.2533,
+        8.0494,
+        12.8041,
+        9.9437,
+        8.3261,
+        9.7105,
+        13.8156,
+        10.8167,
+        14.0297,
+        7.8406,
+        9.1902,
+        9.7387,
+        6.1821,
+        14.1125,
+        8.5613,
+        10.1612,
+        17.0956,
+        9.8196,
+        28.9873,
+        6.8561,
+        2.556,
+        7.2051,
+        6.7772,
+        20.2238,
+        14.225,
+        10.4443,
+        15.1854,
+        6.5972,
+        3.2656,
+        7.5199,
+        10.2877,
+        6.7189,
+        6.8029,
+        7.1717,
+        7.7726,
+        13.3503,
+        14.911,
+        10.647,
+        3.0771,
+        2.4377,
+        3.3945,
+        2.4074,
+        2.9244,
+        2.5016,
+        2.4947,
+        2.5038,
+        2.4247,
+        2.9081,
+        18.5591,
+        4.7072,
+        4.8055,
+        3.4465,
+        10.1143,
+        15.8119,
+        6.2512,
+        7.8973,
+        11.5494,
+        11.4685,
+        7.5186,
+        9.4706,
+        6.1125,
+        9.4245,
+        9.1425,
+        13.0003,
+        9.8107,
+        13.2532,
+        6.7911,
+        6.8822,
+        16.5816,
+        9.3928,
+        7.7064,
+        8.2771,
+        17.3603,
+        5.1419,
+        17.5582,
+        4.9096,
+        8.9086,
+        7.1086,
+        5.7945,
+        7.5957,
+        6.677,
+        3.1424,
+        9.2122,
+        9.7497,
+        8.637,
+        14.0601,
+        9.3516,
+        8.9381,
+        18.0581,
+        4.509,
+        6.7933,
+        7.1573,
+        9.1796,
+        25.5463,
+        5.5998,
+        9.2094,
+        10.6612,
+        4.8891,
+        6.5623,
+        15.5248,
+        4.8776,
+        10.4221,
+        11.9208,
+        9.4636,
+        15.2673,
+        9.8853,
+        7.1458,
+        18.6161,
+        3.6638,
+        11.9945,
+        3.0836,
+        7.0679,
+        12.9896,
+        14.7902,
+        5.2201,
+        11.2786,
+        5.9261,
+        14.3202,
+        3.6103,
+        6.9502,
+        2.2815,
+        3.7485,
+        9.2951,
+        60.428,
+        16.7098,
+        6.9042,
+        12.2549,
+        11.3525,
+        7.9947,
+        14.83,
+        19.3932,
+        7.8073,
+        13.3028,
+        10.1121,
+        3.9837,
+        8.1699,
+        10.9827,
+        13.3538,
+        10.8026,
+        4.162,
+        7.9684,
+        3.602,
+        10.7928,
+        10.5739,
+        9.9314,
+        5.8914,
+        9.534,
+        7.0088,
+        11.711,
+        9.6594,
+        8.6383,
+        5.9741,
+        17.0174,
+        65.2628,
+        6.7995,
+        7.1793,
+        5.7566,
+        7.4887,
+        8.8786,
+        13.2119,
+        7.5023,
+        5.3724
+      ],
+      "after": [
+        2.8285,
+        1.5963,
+        4.3585,
+        20.0031,
+        2.3424,
+        1.5688,
+        6.4792,
+        1.8555,
+        7.0943,
+        2.3538,
+        1.4939,
+        10.7662,
+        1.7611,
+        5.1947,
+        4.7379,
+        3.1204,
+        3.3059,
+        3.3237,
+        11.3088,
+        6.2195,
+        2.4074,
+        2.4016,
+        3.1767,
+        2.9141,
+        11.1385,
+        3.1828,
+        5.0208,
+        9.4114,
+        3.0193,
+        3.2428,
+        3.4079,
+        1.6751,
+        3.9585,
+        1.4735,
+        15.7699,
+        5.6152,
+        4.2471,
+        4.4315,
+        12.0051,
+        1.934,
+        2.9264,
+        5.4736,
+        1.528,
+        1.1047,
+        3.7839,
+        3.2102,
+        4.9791,
+        3.8106,
+        5.0445,
+        0.9026,
+        0.9813,
+        0.8642,
+        0.9065,
+        0.9967,
+        0.7814,
+        0.86,
+        0.9242,
+        0.9725,
+        0.9706,
+        10.8863,
+        1.805,
+        3.0351,
+        1.3589,
+        2.936,
+        6.4631,
+        2.244,
+        3.1666,
+        12.37,
+        3.2255,
+        3.5746,
+        2.9062,
+        2.1481,
+        2.0448,
+        3.3583,
+        3.6736,
+        10.5178,
+        4.314,
+        1.2806,
+        2.626,
+        12.2402,
+        2.2615,
+        1.839,
+        2.9332,
+        10.7114,
+        1.3545,
+        4.1243,
+        1.7297,
+        6.7781,
+        3.7375,
+        2.1994,
+        3.0563,
+        2.0328,
+        1.6751,
+        3.1704,
+        4.6131,
+        4.5043,
+        8.5026,
+        2.7409,
+        2.4876,
+        10.9688,
+        1.6766,
+        2.92,
+        1.9579,
+        2.6901,
+        11.0449,
+        1.6305,
+        1.6756,
+        4.5763,
+        3.3003,
+        1.6312,
+        5.2528,
+        1.6104,
+        2.6911,
+        1.4037,
+        2.6,
+        10.7265,
+        2.3956,
+        2.3282,
+        10.7652,
+        0.9478,
+        10.9145,
+        1.5922,
+        1.7733,
+        3.6443,
+        9.737,
+        1.9777,
+        4.2224,
+        1.4071,
+        6.8949,
+        1.987,
+        8.3704,
+        1.5978,
+        1.3153,
+        3.526,
+        18.6119,
+        10.8765,
+        2.7047,
+        3.3551,
+        4.1,
+        3.3923,
+        4.809,
+        11.2382,
+        2.8652,
+        4.2783,
+        4.3091,
+        1.9113,
+        2.2966,
+        3.9737,
+        4.7749,
+        4.6036,
+        1.5547,
+        2.8263,
+        1.9763,
+        2.7729,
+        2.7777,
+        2.3037,
+        3.1061,
+        2.7988,
+        1.9298,
+        2.8015,
+        3.3724,
+        2.1445,
+        3.9089,
+        8.5409,
+        12.2161,
+        2.9129,
+        3.6064,
+        3.3076,
+        2.6034,
+        3.0765,
+        11.5,
+        2.7679,
+        2.3013
+      ]
+    },
+    "after_any_noncomplete": 199,
+    "after_any_noncomplete_excl_ct": 74
+  },
+  "status_counts_after": {
+    "dns": {
+      "complete": 197,
+      "unavailable": 3
+    },
+    "whois": {
+      "complete": 177,
+      "unavailable": 23
+    },
+    "ssl": {
+      "unavailable": 56,
+      "complete": 141,
+      "timeout": 3
+    },
+    "ip": {
+      "unavailable": 39,
+      "complete": 159,
+      "timeout": 2
+    },
+    "website": {
+      "unavailable": 50,
+      "complete": 147,
+      "timeout": 3
+    },
+    "technology": {
+      "unavailable": 50,
+      "complete": 147,
+      "timeout": 3
+    },
+    "cdn": {
+      "unavailable": 39,
+      "complete": 158,
+      "timeout": 3
+    },
+    "email_security": {
+      "complete": 183,
+      "partial": 3,
+      "unavailable": 14
+    },
+    "subdomains": {
+      "unavailable": 193,
+      "complete": 3,
+      "partial": 4
+    }
+  },
+  "table_b": {
+    "before": {
+      "completed": 173,
+      "misreported_policies": 28,
+      "scans_affected": 14,
+      "reasons": {
+        "spf:domain-does-not-exist": 11,
+        "dmarc:domain-does-not-exist": 11,
+        "spf:unanswered": 3,
+        "dmarc:unanswered": 3
+      },
+      "dns_silent_empty_types": 15,
+      "dns_silent_empty_scans": 3
+    },
+    "after": {
+      "completed": 200,
+      "misreported_policies": 0,
+      "scans_affected": 0,
+      "reasons": {},
+      "dns_silent_empty_types": 0,
+      "dns_silent_empty_scans": 0
+    },
+    "after_email_states": {
+      "spf:False": 50,
+      "dmarc:False": 76,
+      "spf:True": 136,
+      "dmarc:True": 110,
+      "spf:unknown": 14,
+      "dmarc:unknown": 14
+    },
+    "after_dns_unresolved_scans": 3
+  },
+  "comparison": {
+    "pairs": 200,
+    "repeat": {
+      "raw": {
+        "claims": 4880,
+        "removals": 1922
+      },
+      "unaware": {
+        "claims": 613,
+        "removals": 342,
+        "unsupported_removals": 213
+      },
+      "hosthunter": {
+        "claims": 195,
+        "removals": 129,
+        "unsupported_removals": 0
+      }
+    },
+    "pairs_with_unsupported_removal": {
+      "unaware": 9,
+      "hosthunter": 0
+    },
+    "pairs_with_claims": {
+      "raw": 135,
+      "unaware": 51,
+      "hosthunter": 41
+    },
+    "hosthunter_withheld": {
+      "inconclusive_values": 0,
+      "unavailable": 1134,
+      "partially_comparable": 1
+    },
+    "hosthunter_category_states": {
+      "unchanged": 743,
+      "unavailable": 323,
+      "partially_comparable": 88,
+      "changed": 46
+    },
+    "churn": [
+      [
+        "web_delivery.ipv6_addresses",
+        88
+      ],
+      [
+        "web_delivery.ipv4_addresses",
+        83
+      ],
+      [
+        "application.frontend_frameworks",
+        4
+      ],
+      [
+        "application.javascript_libraries",
+        3
+      ],
+      [
+        "web_delivery.final_url",
+        2
+      ],
+      [
+        "web_delivery.http_status",
+        2
+      ],
+      [
+        "tls_identity.certificate_fingerprint_sha256",
+        2
+      ],
+      [
+        "tls_identity.certificate_valid_until",
+        2
+      ],
+      [
+        "domain_control.registered_nameservers",
+        2
+      ],
+      [
+        "domain_control.registry_status",
+        2
+      ],
+      [
+        "web_delivery.asns",
+        2
+      ],
+      [
+        "application.cms",
+        1
+      ],
+      [
+        "web_delivery.network_organizations",
+        1
+      ],
+      [
+        "domain_control.registrar",
+        1
+      ]
+    ],
+    "injected": {
+      "reordered lists": {
+        "n": 200,
+        "false_claims": {
+          "raw": 4806,
+          "unaware": 0,
+          "hosthunter": 0
+        },
+        "scans_with_false": {
+          "raw": 185,
+          "unaware": 0,
+          "hosthunter": 0
+        }
+      },
+      "DNS partial (MX/NS/TXT unanswered)": {
+        "n": 185,
+        "false_claims": {
+          "raw": 2535,
+          "unaware": 969,
+          "hosthunter": 0
+        },
+        "scans_with_false": {
+          "raw": 185,
+          "unaware": 185,
+          "hosthunter": 0
+        }
+      },
+      "IP collector timeout": {
+        "n": 159,
+        "false_claims": {
+          "raw": 5763,
+          "unaware": 326,
+          "hosthunter": 0
+        },
+        "scans_with_false": {
+          "raw": 159,
+          "unaware": 159,
+          "hosthunter": 0
+        }
+      },
+      "website unreachable": {
+        "n": 147,
+        "false_claims": {
+          "raw": 7062,
+          "unaware": 1919,
+          "hosthunter": 0
+        },
+        "scans_with_false": {
+          "raw": 147,
+          "unaware": 147,
+          "hosthunter": 0
+        }
+      },
+      "email lookups unanswered": {
+        "n": 183,
+        "false_claims": {
+          "raw": 1264,
+          "unaware": 607,
+          "hosthunter": 0
+        },
+        "scans_with_false": {
+          "raw": 183,
+          "unaware": 183,
+          "hosthunter": 0
+        }
+      },
+      "CT result truncated": {
+        "n": 1,
+        "false_claims": {
+          "raw": 62,
+          "unaware": 12,
+          "hosthunter": 0
+        },
+        "scans_with_false": {
+          "raw": 1,
+          "unaware": 1,
+          "hosthunter": 0
+        }
+      }
+    },
+    "detection": {
+      "IP collector timeout": {
+        "n": 159,
+        "detected": {
+          "unaware": 159,
+          "hosthunter": 159
+        },
+        "other_claims": {
+          "unaware": 326,
+          "hosthunter": 0
+        }
+      },
+      "website unreachable": {
+        "n": 147,
+        "detected": {
+          "unaware": 147,
+          "hosthunter": 147
+        },
+        "other_claims": {
+          "unaware": 1919,
+          "hosthunter": 0
+        }
+      },
+      "email lookups unanswered": {
+        "n": 159,
+        "detected": {
+          "unaware": 159,
+          "hosthunter": 159
+        },
+        "other_claims": {
+          "unaware": 549,
+          "hosthunter": 0
+        }
+      },
+      "CT result truncated": {
+        "n": 1,
+        "detected": {
+          "unaware": 1,
+          "hosthunter": 1
+        },
+        "other_claims": {
+          "unaware": 12,
+          "hosthunter": 0
+        }
+      }
+    },
+    "dns64_pairs": 21,
+    "dns64_claims": {
+      "all": 104,
+      "ipv6": 59
+    }
+  },
+  "ct": {
+    "baseline": {
+      "scans": 173,
+      "rate_limited": 167,
+      "ok": 1,
+      "errors": {
+        "Certificate-transparency provider rejected the configured credentials": 4,
+        "null": 1,
+        "Certificate-transparency provider rate limit reached": 167,
+        "Certificate-transparency lookup timed out": 1
+      }
+    },
+    "fixed-r1": {
+      "scans": 200,
+      "rate_limited": 192,
+      "ok": 3,
+      "errors": {
+        "Certificate-transparency provider rejected the configured credentials": 5,
+        "null": 3,
+        "Certificate-transparency provider rate limit reached": 192
+      }
+    },
+    "fixed-r2": {
+      "scans": 200,
+      "rate_limited": 194,
+      "ok": 0,
+      "errors": {
+        "Certificate-transparency provider rejected the configured credentials": 5,
+        "Certificate-transparency provider rate limit reached": 194,
+        "Certificate-transparency lookup timed out": 1
+      }
+    }
+  }
+}

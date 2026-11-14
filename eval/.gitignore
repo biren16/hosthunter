@@ -1,0 +1,4 @@
+# Raw local runs contain unsanitized provider data; publish only via sanitize.py.
+results/
+reproduced.json
+__pycache__/
