@@ -204,7 +204,7 @@ export function HeroSearch({ onScan, loading }) {
             <div ref={signalsViewportRef} className="signals-stage__inner">
               <div className="signals-stage__aside">
                 <h2>What HostHunter reads</h2>
-                <p>Eight passive checks map how a domain is registered, resolved, served, identified, and configured across its public-facing infrastructure.</p>
+                <p>Nine evidence collectors map how a domain is registered, resolved, served, identified, and configured across its public-facing infrastructure.</p>
               </div>
               <div className="signals-stage__viewport">
                 <div ref={signalsListRef} className="signals-index">
