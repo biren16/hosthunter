@@ -1,0 +1,404 @@
+[
+ {
+  "domain": "360.cn",
+  "category": "top",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:36:54.395978+00:00",
+  "seconds": 143.78,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 1636,
+   "ips": 10,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "porkbun.com",
+  "category": "top",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:37:36.949713+00:00",
+  "seconds": 42.55,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 578,
+   "ips": 401,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "arcgis.com",
+  "category": "top",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:39:34.171271+00:00",
+  "seconds": 117.21,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 10592,
+   "ips": 179,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "bandcamp.com",
+  "category": "top",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:41:53.677067+00:00",
+  "seconds": 139.49,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 10617,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "change.org",
+  "category": "top",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:43:21.199950+00:00",
+  "seconds": 87.52,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 695,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "stableconnects.com",
+  "category": "mid",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:44:39.837592+00:00",
+  "seconds": 78.64,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 23,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "fieldpulse.com",
+  "category": "mid",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:45:34.770927+00:00",
+  "seconds": 54.93,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 192,
+   "ips": 20,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "espn.in",
+  "category": "mid",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:47:01.592143+00:00",
+  "seconds": 86.82,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 90,
+   "ips": 101,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "adani.com",
+  "category": "mid",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:48:39.885007+00:00",
+  "seconds": 98.29,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 562,
+   "ips": 8,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "iks-jena.de",
+  "category": "mid",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:49:53.589788+00:00",
+  "seconds": 73.71,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 1221,
+   "ips": 2,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "ibecorp.co.kr",
+  "category": "tail",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:50:47.274498+00:00",
+  "seconds": 53.69,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 0,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "jungle.co.kr",
+  "category": "tail",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:52:42.832943+00:00",
+  "seconds": 115.56,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 86,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "results.shiksha",
+  "category": "tail",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:53:29.675630+00:00",
+  "seconds": 46.84,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 14,
+   "ips": 1,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "roesle.com",
+  "category": "tail",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:55:50.151079+00:00",
+  "seconds": 140.47,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 32,
+   "ips": 4,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "zoafvpst.cc",
+  "category": "tail",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:57:20.146404+00:00",
+  "seconds": 89.99,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 2,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "xn----etbpba5admdlad.xn--p1ai",
+  "category": "idn",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:58:46.811680+00:00",
+  "seconds": 86.66,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 32,
+   "ips": 5,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "xn--l3ca4b6dsc1b.com",
+  "category": "idn",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T14:59:33.196323+00:00",
+  "seconds": 46.38,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "ips",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 1,
+   "ips": 4,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "xn----pmcnc1cq0jcocfk73o.com",
+  "category": "idn",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T15:02:07.781026+00:00",
+  "seconds": 154.58,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 4,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "hh-eval-4kljco61oadaeyu7m2vx.com",
+  "category": "nonexistent",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T15:03:01.989771+00:00",
+  "seconds": 54.21,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 0,
+   "shodan": 0
+  }
+ },
+ {
+  "domain": "hh-eval-726lo3shad5bmm1aslkl.com",
+  "category": "nonexistent",
+  "tool": "theharvester 4.11.1_5",
+  "sources": "crtsh,certspotter,hackertarget,rapiddns,otx,subdomaincenter,thc,waybackarchive,robtex",
+  "ran_at": "2026-11-14T15:03:52.348003+00:00",
+  "seconds": 50.36,
+  "exit_code": 0,
+  "capped": false,
+  "json_keys": [
+   "cmd",
+   "hosts",
+   "shodan"
+  ],
+  "counts": {
+   "hosts": 0,
+   "shodan": 0
+  }
+ }
+]

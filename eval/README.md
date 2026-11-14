@@ -24,6 +24,8 @@ Scripts and data behind the evaluation in the HostHunter paper (Section VII).
 | `compare_eval.py` | Repeat-scan comparison and controlled failure injection |
 | `stats.py` | Computes every number in the paper into `results.json` |
 | `sanitize.py` | Produces the published records |
+| `tool_compare.py` | Runs theHarvester 4.11.1 (Homebrew) on a stratified 20-domain subset |
+| `data/tool_compare_summary.json` | theHarvester runtime, output keys and evidence counts per domain (no hostnames) |
 | `data/records/*.jsonl.gz` | Sanitized per-scan records for the three runs |
 | `data/results.json` | Aggregates computed from the full, unsanitized records |
 
