@@ -1,3 +1,5 @@
+import time
+
 import dns.resolver
 
 
@@ -12,28 +14,85 @@ COMMON_DKIM_SELECTORS = [
 ]
 
 DNS_LIFETIME = 5
+# Whole-collector budget: 9 sequential lookups at 5 s each could otherwise
+# take 45 s, well past the scan deadline.
+EMAIL_BUDGET_SECONDS = 12
+
+# These mean the question was not answered, not that the record is absent.
+UNANSWERED = (
+    dns.resolver.NoNameservers,
+    dns.resolver.LifetimeTimeout,
+)
 
 
 def email_security_lookup(domain):
-    records = get_txt_records(domain)
-    dmarc_records = get_txt_records(f"_dmarc.{domain}")
-    dkim_records = get_dkim_records(domain)
+    deadline = time.monotonic() + EMAIL_BUDGET_SECONDS
 
-    return {
-        "spf": detect_spf(records),
-        "dmarc": detect_dmarc(dmarc_records),
+    records, spf_state = get_txt_records(domain, deadline)
+    if spf_state == "nxdomain":
+        return {
+            "status": "unavailable",
+            "error": "The domain does not exist in DNS",
+            "spf": unknown_policy("spf", "The domain does not exist in DNS."),
+            "dmarc": unknown_policy("dmarc", "The domain does not exist in DNS."),
+            "dkim": detect_dkim([]),
+        }
+
+    dmarc_records, dmarc_state = get_txt_records(f"_dmarc.{domain}", deadline)
+    dkim_records, unchecked_selectors = get_dkim_records(domain, deadline)
+
+    unanswered_reason = "The DNS lookup did not complete, so presence is unknown."
+    result = {
+        "spf": (
+            detect_spf(records) if spf_state == "answered"
+            else unknown_policy("spf", unanswered_reason)
+        ),
+        "dmarc": (
+            detect_dmarc(dmarc_records) if dmarc_state != "unknown"
+            else unknown_policy("dmarc", unanswered_reason)
+        ),
         "dkim": detect_dkim(dkim_records),
     }
 
+    if unchecked_selectors and result["dkim"]["supported"] == "Unknown":
+        result["dkim"]["unchecked_selectors"] = unchecked_selectors
 
-def get_txt_records(domain):
+    unknown = [state for state in (spf_state, dmarc_state) if state == "unknown"]
+    if len(unknown) == 2 and not dkim_records:
+        result["status"] = "unavailable"
+        result["error"] = "Email-security DNS lookups did not complete"
+    elif unknown or unchecked_selectors:
+        result["status"] = "partial"
+    else:
+        result["status"] = "complete"
+
+    return result
+
+
+def unknown_policy(kind, reason):
+    policy = {"enabled": None, "record": None, "reason": reason}
+    if kind == "dmarc":
+        policy["policy"] = None
+    return policy
+
+
+def _remaining(deadline):
+    return min(DNS_LIFETIME, deadline - time.monotonic())
+
+
+def get_txt_records(domain, deadline):
+    """Return (records, state); state is answered, nxdomain or unknown."""
     records = []
+    lifetime = _remaining(deadline)
+
+    if lifetime <= 0:
+        return records, "unknown"
 
     try:
         answers = dns.resolver.resolve(
             domain,
             "TXT",
-            lifetime=DNS_LIFETIME,
+            lifetime=lifetime,
         )
 
         for answer in answers:
@@ -41,28 +100,33 @@ def get_txt_records(domain):
                 answer.to_text().strip('"')
             )
 
-    except (
-        dns.resolver.NoAnswer,
-        dns.resolver.NXDOMAIN,
-        dns.resolver.NoNameservers,
-        dns.resolver.LifetimeTimeout,
-    ):
+    except dns.resolver.NoAnswer:
         pass
+    except dns.resolver.NXDOMAIN:
+        return records, "nxdomain"
+    except UNANSWERED:
+        return records, "unknown"
 
-    return records
+    return records, "answered"
 
 
-def get_dkim_records(domain):
+def get_dkim_records(domain, deadline):
     records = []
+    unchecked = []
 
     for selector in COMMON_DKIM_SELECTORS:
         dkim_domain = f"{selector}._domainkey.{domain}"
+        lifetime = _remaining(deadline)
+
+        if lifetime <= 0:
+            unchecked.append(selector)
+            continue
 
         try:
             answers = dns.resolver.resolve(
                 dkim_domain,
                 "TXT",
-                lifetime=DNS_LIFETIME,
+                lifetime=lifetime,
             )
 
             for answer in answers:
@@ -76,12 +140,12 @@ def get_dkim_records(domain):
         except (
             dns.resolver.NoAnswer,
             dns.resolver.NXDOMAIN,
-            dns.resolver.NoNameservers,
-            dns.resolver.LifetimeTimeout,
         ):
             continue
+        except UNANSWERED:
+            unchecked.append(selector)
 
-    return records
+    return records, unchecked
 
 
 def detect_spf(records):

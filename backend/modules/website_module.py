@@ -1,16 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from utils.http_client import fetch_http
+from utils.scan_context import ScanContext
 
-def website_lookup(domain):
+def website_lookup(domain, context=None):
     """
     Fetches a website and extracts metadata and security headers.
     """
     result = {}
+    context = context or ScanContext(domain)
 
     try:
-        website = fetch_http(domain)
+        website = context.fetch()
 
     except (requests.RequestException, ConnectionError) as e:
         result["error"] = str(e)

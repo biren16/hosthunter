@@ -1,12 +1,14 @@
-from utils.http_client import fetch_http
+from utils.scan_context import ScanContext
 from bs4 import BeautifulSoup
 import requests
 
-def technology_lookup(domain):
+def technology_lookup(domain, context=None):
     result = {}
+    context = context or ScanContext(domain)
 
     try:
-        website = fetch_http(domain)
+        # Shares the Website collector's response instead of fetching again.
+        website = context.fetch()
 
     except (requests.RequestException, ConnectionError) as e:
         result["error"] = str(e)

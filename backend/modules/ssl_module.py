@@ -5,15 +5,27 @@ from datetime import datetime, timezone
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, ec, ed25519, ed448
-def ssl_lookup(domain):
 
-    context = ssl.create_default_context()
-    result = {} 
+from utils.scan_context import ScanContext
+
+def ssl_lookup(domain, context=None):
+
+    tls_context = ssl.create_default_context()
+    context = context or ScanContext(domain)
+    result = {}
 
     try:
-        with socket.create_connection((domain, 443), timeout=5) as sock:
+        # Connect to an address that was already checked as public, so the
+        # handshake cannot be steered to a private or loopback host.
+        address = context.public_addresses()[0]
+    except ConnectionError as e:
+        result["error"] = str(e)
+        return result
 
-            with context.wrap_socket(sock, server_hostname=domain) as ssl_sock:
+    try:
+        with socket.create_connection((address, 443), timeout=5) as sock:
+
+            with tls_context.wrap_socket(sock, server_hostname=domain) as ssl_sock:
                 ssl_sock.settimeout(5)
 
                 certificate = ssl_sock.getpeercert()
@@ -89,8 +101,12 @@ def ssl_lookup(domain):
         result["error"] = "Connection aborted"
     except ConnectionRefusedError:
         result["error"] = "Connection refused"
-    except Exception as e:
-        result["error"] = str(e)
+    except ssl.SSLError:
+        result["error"] = "TLS handshake failed"
+    except OSError:
+        result["error"] = "Unable to connect on port 443"
+    except Exception:
+        result["error"] = "Unable to retrieve the TLS certificate"
 
     return result
 

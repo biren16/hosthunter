@@ -1,19 +1,20 @@
 import ipaddress
 import socket
 from pathlib import Path
-from utils.network import resolve_addresses
+from utils.scan_context import ScanContext
 
 DATA_DIR = Path(__file__).parent.parent/ "data"
 
 IPV4_FILE = DATA_DIR/ "ips-v4.txt"
 IPV6_FILE = DATA_DIR/ "ips-v6.txt"
 
-def cdn_lookup(domain):
+def cdn_lookup(domain, context=None):
+    context = context or ScanContext(domain)
     try:
-        resolved_ips = resolve_addresses(domain)
-    except socket.gaierror as e:
+        resolved_ips = context.addresses()
+    except socket.gaierror:
         return{
-            "error": f"Unable to resolve '{domain}': {e}"
+            "error": f"Unable to resolve '{domain}'"
         }
 
     try:

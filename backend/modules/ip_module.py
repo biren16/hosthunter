@@ -9,26 +9,24 @@ except Exception:  # fallback if python-dotenv is not installed
         return None
 import requests
 
+from utils.scan_context import ScanContext
+
 load_dotenv()
 IPINFO_TOKEN = os.getenv("IPINFO_TOKEN")
 
-def ip_lookup(domain):
+def ip_lookup(domain, context=None):
 
     result=  {
         "ips" : [],
     }
+    context = context or ScanContext(domain)
 
     try:
-        addresses = socket.getaddrinfo(domain, None)
+        # Same resolution the CDN, TLS and HTTP collectors use in this scan.
+        unique_ips = context.addresses()
     except socket.gaierror:
         result["error"] = "Unable to resolve domain to IP addresses"
         return result
-
-    unique_ips=set()
-
-    for address in addresses:
-        ip=address[4][0]
-        unique_ips.add(ip)
 
     for ip in unique_ips:
         ip_obj=ipaddress.ip_address(ip)
