@@ -184,7 +184,14 @@ npm run build
 ```
 
 The frontend test command runs the focused tests under `frontend/src/lib/`.
-Backend automated tests are not yet configured.
+
+Run the backend tests from `backend/`:
+
+```bash
+python -m unittest discover -s tests -t .
+```
+
+They use mocks and fixtures only and make no network requests.
 
 Backend changes should preserve the API contract, partial-result behavior,
 and explicit uncertainty semantics. Frontend changes should follow
