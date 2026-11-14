@@ -212,6 +212,23 @@ class RedirectCheckTests(unittest.TestCase):
                 http_client.get_with_checked_redirects("https://example.com")
 
 
+class HttpFallbackTests(unittest.TestCase):
+    def test_https_failure_falls_back_to_http(self):
+        final = MagicMock(is_redirect=False)
+
+        def get(url, **kwargs):
+            if url.startswith("https://"):
+                raise requests.exceptions.SSLError("handshake failed")
+            return final
+
+        with patch.object(http_client, "ensure_public_destination", return_value=["93.184.215.14"]), \
+                patch.object(http_client.requests, "get", side_effect=get):
+            result = http_client.fetch_http("example.com")
+
+        self.assertEqual(result["requested_url"], "http://example.com")
+        self.assertIs(result["response"], final)
+
+
 class TlsDestinationTests(unittest.TestCase):
     def test_tls_refuses_domain_resolving_only_to_private_addresses(self):
         from modules import ssl_module

@@ -54,7 +54,7 @@ def fetch_http(domain):
         # Only these errors indicate HTTPS could not be established.
         # In that case, try HTTP before giving up.
         except (
-            requests.SSLError,
+            requests.exceptions.SSLError,
             requests.ConnectionError,
             requests.Timeout,
         ):
