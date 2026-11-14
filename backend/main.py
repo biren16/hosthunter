@@ -13,6 +13,7 @@ from modules.cdn_module import cdn_lookup
 from modules.email_security_module import email_security_lookup
 from modules.subdomain_module import subdomain_lookup
 from analysis.engine import build_analysis
+from analysis.normalize import normalize
 from utils.scan_context import ScanContext
 
 
@@ -284,5 +285,11 @@ def scan(request : ScanRequest):
             "unavailable": [],
         }
         result.setdefault("errors", {})["analysis"] = "Analysis layer unavailable"
+
+    # Normalized evidence is additive; the raw module payloads above stay as-is.
+    try:
+        result["infrastructure"] = normalize(result)
+    except Exception:
+        result.setdefault("errors", {})["infrastructure"] = "Normalization unavailable"
 
     return result

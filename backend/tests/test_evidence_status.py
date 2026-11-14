@@ -80,6 +80,9 @@ class ScanOrchestrationTests(unittest.TestCase):
             response = scan(ScanRequest(domain="example.com"))
 
         self.assertEqual(response["scan_meta"]["schema_version"], main.SCHEMA_VERSION)
+        self.assertEqual(response["infrastructure"]["domain"], "example.com")
+        self.assertEqual(response["infrastructure"]["categories"]["web_delivery"]["ipv4_addresses"]["value"],
+                         ["192.0.2.1"])
         self.assertEqual(set(response["module_meta"]), {
             "dns", "whois", "ssl", "ip", "website", "technology", "cdn", "email_security", "subdomains",
         })
